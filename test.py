@@ -30,8 +30,8 @@ class Floor(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((50, 50))
-        self.image.fill((255, 51, 0))
+        self.image = pygame.Surface((50, 75))
+        self.image.fill((102, 102, 51))
         self.rect = self.image.get_rect()
         self.rect.center = (100, 400)
         self.speed = 0.0
@@ -42,7 +42,8 @@ class Player(pygame.sprite.Sprite):
         global isGameOver
         
         if pygame.sprite.spritecollideany(player, enemies):
-            isGameOver = False # True
+            isGameOver = True
+            pass
         
         if not self.speed: self.rect.y += 1
         
@@ -68,18 +69,31 @@ class Player(pygame.sprite.Sprite):
                 self.hoverCount += 1
             else:
                 self.isJumping = False
-            
+
 
 class Enemy(pygame.sprite.Sprite):
+    def setNextEnemyType(self):
+        if score < 25:
+            self.type = 1
+        else:
+            if random.randint(1, 100) < 90:
+                self.type = 1
+            else:
+                self.type = 2
+
+    def setNextEnemySubtype(self):
+        if self.type == 1:
+            self.subtype = random.randint(1, 5)
+        elif self.type == 2:
+            self.subtype = random.randint(1, 3)
+
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         
-        self.type = random.randint(1, 2)
+        self.setNextEnemyType()
+        self.setNextEnemySubtype()
 
         if self.type == 1:
-            self.subtype = random.randint(1, 5)
-            self.image.fill((0, 153, 0))
-            
             if self.subtype == 1:
                 self.image = pygame.Surface((25, 75))
             elif self.subtype == 2:
@@ -92,13 +106,19 @@ class Enemy(pygame.sprite.Sprite):
                 self.image = pygame.Surface((50, 50))
             else:
                 self.image = pygame.Surface((25, 50))
-        elif self.type == 2:
-            self.subtype = random.randint(1, 3)
+
             self.image.fill((0, 153, 0))
-                
+            self.rect = self.image.get_rect()
+            self.height = screenSize[1]-floorHeight-self.rect.height/2
+
+        elif self.type == 2:
+            self.image = pygame.Surface((50, 25))
+            self.image.fill((255, 0, 255))
+            self.rect = self.image.get_rect()
+            self.height = screenSize[1]-floorHeight-self.rect.height/2 - 10 - 25*self.subtype
             
-        self.rect = self.image.get_rect()
-        self.rect.center = (screenSize[0], screenSize[1]-floorHeight-self.rect.height/2)
+#        self.image.fill((random.randint(0, 255),random.randint(0, 255),random.randint(0, 255)))
+        self.rect.center = (screenSize[0], self.height)
         
     def update(self):
         global score, gameSpeed
