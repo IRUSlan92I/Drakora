@@ -1,3 +1,9 @@
+"""
+First test Pygame project
+
+Written in Python 3.X using Pygame library
+"""
+
 import pygame
 import random
 
