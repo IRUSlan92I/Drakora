@@ -113,11 +113,10 @@ class Enemy(pygame.sprite.Sprite):
 
         elif self.type == 2:
             self.image = pygame.Surface((50, 25))
-            self.image.fill((255, 0, 255))
+            self.image.fill((51, 51, 0))
             self.rect = self.image.get_rect()
             self.height = screenSize[1]-floorHeight-self.rect.height/2 - 10 - 25*self.subtype
             
-#        self.image.fill((random.randint(0, 255),random.randint(0, 255),random.randint(0, 255)))
         self.rect.center = (screenSize[0], self.height)
         
     def update(self):
