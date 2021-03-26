@@ -1,6 +1,12 @@
 import pygame
 import random
 
+buttonsPause = (pygame.K_p,)
+buttonsQuit = (pygame.K_F10,)
+buttonsNewGame = (pygame.K_RETURN,)
+buttonsJump = (pygame.K_UP, pygame.K_SPACE,)
+buttonsCrouch = (pygame.K_DOWN,)
+
 screenSize = (800, 600)
 targetFps = 60
 
@@ -9,8 +15,10 @@ floorHeight = 50
 gameSpeed = 0.0
 score = 0
 isGameOver = False
+isPaused = False
 
-isDownSpace = False
+isDownJump = False
+isDownCrouch = False
 
 enemyCD = 0
 enemyChance = 0.0
@@ -31,55 +39,83 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface((50, 75))
-        self.image.fill((102, 102, 51))
+        self.image.fill((153, 151, 0))
         self.rect = self.image.get_rect()
         self.rect.center = (100, 400)
         self.speed = 0.0
         self.isJumping = False
+        self.isCrouching = False
         self.hoverCount = 0
-        
+
+    def crouch(self):
+        if not self.isCrouching:
+            self.isCrouching = True
+            self.rect = self.rect.inflate(0, -25)
+
+    def standup(self):
+        if self.isCrouching:
+            self.isCrouching = False
+            self.rect = self.rect.inflate(0, 25)
+
     def update(self):
         global isGameOver
-        
+
         if pygame.sprite.spritecollideany(player, enemies):
             isGameOver = True
             pass
-        
+
         if not self.speed: self.rect.y += 1
-        
+
         self.speed += 0.35
         self.rect.y += self.speed
-        
+
         isOnFloor = False
         while pygame.sprite.spritecollideany(player, floors):
             isOnFloor = True
             self.rect.y -= 1
-        
-        if not isDownSpace:
+
+        if not isDownJump:
             self.hoverCount = 0
-        
+
         if isOnFloor:
             self.speed = 0
-            if isDownSpace:
+
+            if isDownJump:
                 self.isJumping = True
-                
+
+                if self.isCrouching:
+                    self.standup()
+
+            elif isDownCrouch:
+                if not self.isCrouching:
+                    self.crouch()
+
+            elif self.isCrouching:
+                    self.standup()
+
+
         if self.isJumping:
-            if isDownSpace and self.hoverCount < 8:
+            if isDownJump and self.hoverCount < 8:
                 self.speed -= 1 - self.speed/8
                 self.hoverCount += 1
+
             else:
                 self.isJumping = False
+        
 
 
 class Enemy(pygame.sprite.Sprite):
     def setNextEnemyType(self):
         if score < 25:
             self.type = 1
+
+        elif score < 50:
+            if random.randint(1, 100) < 90: self.type = 1
+            else:                           self.type = 2
+
         else:
-            if random.randint(1, 100) < 90:
-                self.type = 1
-            else:
-                self.type = 2
+            if random.randint(1, 100) < 75: self.type = 1
+            else:                           self.type = 2
 
     def setNextEnemySubtype(self):
         if self.type == 1:
@@ -89,36 +125,32 @@ class Enemy(pygame.sprite.Sprite):
 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        
+
         self.setNextEnemyType()
         self.setNextEnemySubtype()
 
+        self.height = screenSize[1] - floorHeight
+
         if self.type == 1:
-            if self.subtype == 1:
-                self.image = pygame.Surface((25, 75))
-            elif self.subtype == 2:
-                self.image = pygame.Surface((25, 25))
-            elif self.subtype == 3:
-                self.image = pygame.Surface((75, 25))
-            elif self.subtype == 4:
-                self.image = pygame.Surface((50, 25))
-            elif self.subtype == 5:
-                self.image = pygame.Surface((50, 50))
-            else:
-                self.image = pygame.Surface((25, 50))
+            if self.subtype == 1:   self.image = pygame.Surface((25, 75))
+            elif self.subtype == 2: self.image = pygame.Surface((25, 25))
+            elif self.subtype == 3: self.image = pygame.Surface((75, 25))
+            elif self.subtype == 4: self.image = pygame.Surface((50, 25))
+            elif self.subtype == 5: self.image = pygame.Surface((50, 50))
+            else:                   self.image = pygame.Surface((25, 50))
 
             self.image.fill((0, 153, 0))
             self.rect = self.image.get_rect()
-            self.height = screenSize[1]-floorHeight-self.rect.height/2
+            self.height -= self.rect.height/2
 
         elif self.type == 2:
             self.image = pygame.Surface((50, 25))
             self.image.fill((51, 51, 0))
             self.rect = self.image.get_rect()
-            self.height = screenSize[1]-floorHeight-self.rect.height/2 - 10 - 25*self.subtype
-            
+            self.height -= self.rect.height/2 + 10 + 25*self.subtype
+
         self.rect.center = (screenSize[0], self.height)
-        
+
     def update(self):
         global score, gameSpeed
         self.rect.x -= gameSpeed
@@ -130,18 +162,19 @@ class Enemy(pygame.sprite.Sprite):
 def newGame():
     global player, floor, enemies, sprites, score
     global gameSpeed, isGameOver, enemyCD, enemyChance
-    
+
     for enemy in enemies:
         enemy.kill()
-    
+
     if player: player.kill()
-    
+
     player = Player()
     sprites.add(player)
-    
+
     gameSpeed = 3.0
     score = 0
     isGameOver = False
+    isPaused = False
 
     enemyCD = 0
     enemyChance = 100.0
@@ -149,17 +182,17 @@ def newGame():
 
 def init():
     global player, floor, enemies, sprites, score
-    
+
     random.seed()
     pygame.init()
     screen = pygame.display.set_mode(screenSize)
     pygame.display.set_caption('First test')
     clock = pygame.time.Clock()
-    
+
     sprites = pygame.sprite.Group()
     floors.add(Floor())
     sprites.add(floors)
-    
+
     newGame()
 
     return screen, clock, sprites
@@ -170,29 +203,29 @@ def deinit():
 def render(screen, sprites):
     screen.fill((102, 153, 255))
     sprites.draw(screen)
-    
+
     font = pygame.font.Font(pygame.font.match_font('liberation mono'), 12)
-    
+
     text = font.render('score: %d'%(score), True, (255, 255, 255))
     rect = text.get_rect()
     rect.midtop = (rect.width/2+10,10)
     screen.blit(text, rect)
-    
-    text = font.render('game speed: %.1f %s'%(gameSpeed, '(space is pressed)' if isDownSpace else ''), True, (255, 255, 255))
+
+    text = font.render('game speed: %.1f %s'%(gameSpeed, '(space is pressed)' if isDownJump else ''), True, (255, 255, 255))
     rect = text.get_rect()
     rect.midtop = (rect.width/2+10,25)
     screen.blit(text, rect)
-    
+
     text = font.render('player speed: %.1f'%(player.speed), True, (255, 255, 255))
     rect = text.get_rect()
     rect.midtop = (rect.width/2+10,40)
     screen.blit(text, rect)
-    
+
     text = font.render('enemy CD: %.1f'%(enemyCD), True, (255, 255, 255))
     rect = text.get_rect()
     rect.midtop = (rect.width/2+10,55)
     screen.blit(text, rect)
-    
+
     text = font.render('enemy chance: %.1f'%(enemyChance), True, (255, 255, 255))
     rect = text.get_rect()
     rect.midtop = (rect.width/2+10,70)
@@ -204,42 +237,57 @@ def render(screen, sprites):
         rect = text.get_rect()
         rect.midtop = tuple(i/2 for i in screenSize)
         screen.blit(text, rect)
+    elif isPaused:
+        font = pygame.font.Font(pygame.font.match_font('liberation mono'), 56)
+        text = font.render('PAUSED', True, (255, 255, 255))
+        rect = text.get_rect()
+        rect.midtop = tuple(i/2 for i in screenSize)
+        screen.blit(text, rect)
+
 
     pygame.display.flip()
 
 
 def logic(clock, sprites):
-    global enemyCD, enemyChance, isDownSpace
+    global enemyCD, enemyChance, isDownJump, isDownCrouch, isPaused
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             return False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_F10:
-                return False
-            elif event.key == pygame.K_SPACE:
-                isDownSpace = True
-            elif event.key == pygame.K_RETURN:
-                newGame()
-        elif event.type == pygame.KEYUP:
-            if event.key == pygame.K_SPACE:
-                isDownSpace = False
 
-    if not isGameOver:
+        elif event.type == pygame.KEYDOWN:
+            if event.key in buttonsQuit:
+                return False
+            if event.key in buttonsCrouch:
+                isDownCrouch = True
+            elif event.key in buttonsJump:
+                isDownJump = True
+            elif event.key in buttonsNewGame:
+                if isGameOver: newGame()
+            elif event.key in buttonsPause:
+                isPaused = not isPaused
+
+        elif event.type == pygame.KEYUP:
+            if event.key in buttonsCrouch:
+                isDownCrouch = False
+            if event.key in buttonsJump:
+                isDownJump = False
+
+    if not isGameOver and not isPaused:
         sprites.update()
-    
+
         enemyCD -= gameSpeed
-        
+
         if enemyCD <= 0:
             enemyChance += (1/targetFps) * enemyChance/8
 
-            if random.randint(1, 100) < enemyChance: 
+            if random.randint(1, 100) < enemyChance:
                 enemyCD = 300
-                enemyChance = 1 
+                enemyChance = 1
                 enemy = Enemy()
                 enemies.add(enemy)
                 sprites.add(enemy)
-        
+
 
     clock.tick(targetFps)
 
@@ -252,7 +300,7 @@ def main_loop(screen, clock, sprites):
 
     while isRunning:
         isRunning = logic(clock, sprites)
-        render(screen, sprites) 
+        render(screen, sprites)
 
 if __name__ == '__main__':
     screen, clock, sprites = init()
