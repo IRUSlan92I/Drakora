@@ -25,6 +25,7 @@ enemyChance = 0.0
 
 floors = pygame.sprite.Group()
 enemies = pygame.sprite.Group()
+clouds = pygame.sprite.Group()
 player = None
 
 class Floor(pygame.sprite.Sprite):
@@ -34,6 +35,25 @@ class Floor(pygame.sprite.Sprite):
         self.image.fill((255, 204, 102))
         self.rect = self.image.get_rect()
         self.rect.center = (screenSize[0]/2, screenSize[1]-floorHeight/2)
+
+class Cloud(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((random.randint(150, 350),
+                                     random.randint(50, 150)))
+        self.image.fill((random.randint(235, 255),
+                         random.randint(235, 255),
+                         random.randint(235, 255)))
+        self.rect = self.image.get_rect()
+        self.rect.center = (screenSize[0] + self.rect.width,
+                            screenSize[1]/2 -
+                                random.randint(100, screenSize[1]/2))
+        self.speed = random.randint(10, 30)/10
+
+    def update(self):
+        self.rect.x -= gameSpeed*self.speed
+        if (self.rect.x < -self.rect.width):
+            self.kill()
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -101,7 +121,7 @@ class Player(pygame.sprite.Sprite):
 
             else:
                 self.isJumping = False
-        
+
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -149,7 +169,7 @@ class Enemy(pygame.sprite.Sprite):
             self.rect = self.image.get_rect()
             self.height -= self.rect.height/2 + 10 + 25*self.subtype
 
-        self.rect.center = (screenSize[0], self.height)
+        self.rect.center = (screenSize[0] + self.rect.width, self.height)
 
     def update(self):
         global score, gameSpeed
@@ -211,12 +231,15 @@ def render(screen, sprites):
     rect.midtop = (rect.width/2+10,10)
     screen.blit(text, rect)
 
-    text = font.render('game speed: %.1f %s'%(gameSpeed, '(space is pressed)' if isDownJump else ''), True, (255, 255, 255))
+    text = font.render('game speed: %.1f %s'%\
+                (gameSpeed, '(space is pressed)' if isDownJump else ''),
+                 True, (255, 255, 255))
     rect = text.get_rect()
     rect.midtop = (rect.width/2+10,25)
     screen.blit(text, rect)
 
-    text = font.render('player speed: %.1f'%(player.speed), True, (255, 255, 255))
+    text = font.render('player speed: %.1f'%(player.speed),
+                       True, (255, 255, 255))
     rect = text.get_rect()
     rect.midtop = (rect.width/2+10,40)
     screen.blit(text, rect)
@@ -226,7 +249,8 @@ def render(screen, sprites):
     rect.midtop = (rect.width/2+10,55)
     screen.blit(text, rect)
 
-    text = font.render('enemy chance: %.1f'%(enemyChance), True, (255, 255, 255))
+    text = font.render('enemy chance: %.1f'%(enemyChance),
+                       True, (255, 255, 255))
     rect = text.get_rect()
     rect.midtop = (rect.width/2+10,70)
     screen.blit(text, rect)
@@ -278,6 +302,11 @@ def logic(clock, sprites):
 
         enemyCD -= gameSpeed
 
+        if random.randint(1, 100) == 1:
+            cloud = Cloud()
+            clouds.add(cloud)
+            sprites.add(cloud)
+
         if enemyCD <= 0:
             enemyChance += (1/targetFps) * enemyChance/8
 
@@ -306,4 +335,3 @@ if __name__ == '__main__':
     screen, clock, sprites = init()
     main_loop(screen, clock, sprites)
     deinit()
-
