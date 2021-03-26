@@ -53,8 +53,8 @@ class Cloud(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = (screenSize[0] + self.rect.width,
                             screenSize[1]/2 -
-                                random.randint(100, screenSize[1]/2))
-        self.speed = random.randint(10, 30)/10
+                                random.randint(100, screenSize[1]/2-100))
+        self.speed = random.randint(150, 300)/100
 
     def update(self):
         self.rect.x -= gameSpeed*self.speed
@@ -234,35 +234,10 @@ def render(screen, sprites):
     screen.fill((102, 153, 255))
     sprites.draw(screen)
 
-    font = pygame.font.Font(pygame.font.match_font('liberation mono'), 12)
-
-    text = font.render('score: %d'%(score), True, (255, 255, 255))
+    font = pygame.font.Font(pygame.font.match_font('liberation mono'), 32)
+    text = font.render('%d'%(score), True, (255, 255, 255))
     rect = text.get_rect()
     rect.midtop = (rect.width/2+10,10)
-    screen.blit(text, rect)
-
-    text = font.render('game speed: %.1f %s'%\
-                (gameSpeed, '(space is pressed)' if isDownJump else ''),
-                 True, (255, 255, 255))
-    rect = text.get_rect()
-    rect.midtop = (rect.width/2+10,25)
-    screen.blit(text, rect)
-
-    text = font.render('player speed: %.1f'%(player.speed),
-                       True, (255, 255, 255))
-    rect = text.get_rect()
-    rect.midtop = (rect.width/2+10,40)
-    screen.blit(text, rect)
-
-    text = font.render('enemy CD: %.1f'%(enemyCD), True, (255, 255, 255))
-    rect = text.get_rect()
-    rect.midtop = (rect.width/2+10,55)
-    screen.blit(text, rect)
-
-    text = font.render('enemy chance: %.1f'%(enemyChance),
-                       True, (255, 255, 255))
-    rect = text.get_rect()
-    rect.midtop = (rect.width/2+10,70)
     screen.blit(text, rect)
 
     if isGameOver:
