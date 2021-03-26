@@ -216,7 +216,7 @@ def init():
     random.seed()
     pygame.init()
     screen = pygame.display.set_mode(screenSize)
-    pygame.display.set_caption('First test')
+    pygame.display.set_caption('Drakora')
     clock = pygame.time.Clock()
 
     sprites = pygame.sprite.Group()
