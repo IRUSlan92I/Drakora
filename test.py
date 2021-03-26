@@ -121,8 +121,8 @@ class Player(pygame.sprite.Sprite):
 
 
         if self.isJumping:
-            if isDownJump and self.hoverCount < 8:
-                self.speed -= 1 - self.speed/8
+            if isDownJump and self.hoverCount < 10:
+                self.speed -= 1 - self.speed/(15+self.hoverCount*3)
                 self.hoverCount += 1
 
             else:
@@ -132,11 +132,15 @@ class Player(pygame.sprite.Sprite):
 
 class Enemy(pygame.sprite.Sprite):
     def setNextEnemyType(self):
-        if score < 25:
+        if score < 10:
             self.type = 1
 
+        elif score < 25:
+            if random.randint(1, 100) < 95: self.type = 1
+            else:                           self.type = 2
+
         elif score < 50:
-            if random.randint(1, 100) < 90: self.type = 1
+            if random.randint(1, 100) < 85: self.type = 1
             else:                           self.type = 2
 
         else:
@@ -317,7 +321,7 @@ def logic(clock, sprites):
             enemyChance += (1/targetFps) * enemyChance/8
 
             if random.randint(1, 100) < enemyChance:
-                enemyCD = 300
+                enemyCD = 200
                 enemyChance = 1
                 enemy = Enemy()
                 enemies.add(enemy)
