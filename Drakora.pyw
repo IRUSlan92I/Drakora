@@ -7,10 +7,6 @@ Written in Python 3.X using Pygame library
 
 import pygame
 import random
-import time
-
-
-timeDiff = 0
 
 
 class Floor(pygame.sprite.Sprite):
@@ -38,7 +34,7 @@ class Cloud(pygame.sprite.Sprite):
 
 
     def update(self):
-        self.rect.x -= self.speed*timeDiff
+        self.rect.x -= self.speed
 
 
 class Player(pygame.sprite.Sprite):
@@ -71,7 +67,7 @@ class Player(pygame.sprite.Sprite):
         if not self.speed: self.rect.y += 1
 
         self.speed += 0.17
-        self.rect.y += self.speed*timeDiff
+        self.rect.y += self.speed
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -79,11 +75,11 @@ class Enemy(pygame.sprite.Sprite):
         if score < 10:
             self.type = 1
 
-        elif score < 25:
+        elif score < 20:
             if random.randint(1, 100) < 95: self.type = 1
             else:                           self.type = 2
 
-        elif score < 50:
+        elif score < 40:
             if random.randint(1, 100) < 85: self.type = 1
             else:                           self.type = 2
 
@@ -132,9 +128,9 @@ class Enemy(pygame.sprite.Sprite):
 
     def update(self):
         if self.type == 1:
-            self.rect.x -= self.speed*timeDiff
+            self.rect.x -= self.speed
         else:
-            self.rect.x -= self.speed*2*timeDiff
+            self.rect.x -= self.speed*2
 
 
 class Drakora():
@@ -191,8 +187,6 @@ class Drakora():
         self.fontScore = pygame.font.Font(font, 32)
         self.fontMessage = pygame.font.Font(font, 56)
 
-        self.timeOfLastFrameInNs = time.time_ns()
-
         self.newGame()
 
 
@@ -235,7 +229,8 @@ class Drakora():
             if (enemy.rect.x < -enemy.rect.width):
                 enemy.kill()
                 self.score += 1
-                self.gameSpeed += 0.025
+                if self.score%25 == 0:
+                    self.gameSpeed += 1
                 """Quick fix of running cacti. Some good fix needed"""
                 for enemy in self.enemies: enemy.speed = self.gameSpeed
 
@@ -305,7 +300,7 @@ class Drakora():
 
             self.enemyCD -= self.gameSpeed
 
-            if random.randint(1, 100) == 1:
+            if random.randint(1, 150) == 1:
                 cloud = Cloud(self.screenSize, self.gameSpeed)
                 self.clouds.add(cloud)
                 self.sprites.add(cloud)
@@ -327,14 +322,8 @@ class Drakora():
 
 
     def play(self):
-        global timeDiff
-
         isRunning = True
         while isRunning:
-            timeOfNewFrameInNs = time.time_ns()
-            timeDiff = (timeOfNewFrameInNs-self.timeOfLastFrameInNs)/10000000
-            self.timeOfLastFrameInNs = timeOfNewFrameInNs
-
             self.clock.tick(self.targetFps)
             self.render()
             isRunning = self.logic()
