@@ -4,46 +4,22 @@ First test Pygame project
 Written in Python 3.X using Pygame library
 """
 
+
 import pygame
 import random
 
-buttonsPause = (pygame.K_p,)
-buttonsQuit = (pygame.K_F10,)
-buttonsNewGame = (pygame.K_RETURN,)
-buttonsJump = (pygame.K_UP, pygame.K_SPACE,)
-buttonsCrouch = (pygame.K_DOWN,)
-
-screenSize = (800, 600)
-targetFps = 60
-
-floorHeight = 50
-
-gameSpeed = 0.0
-score = 0
-isGameOver = False
-isPaused = False
-
-isDownJump = False
-isDownCrouch = False
-
-enemyCD = 0
-enemyChance = 0.0
-
-floors = pygame.sprite.Group()
-enemies = pygame.sprite.Group()
-clouds = pygame.sprite.Group()
-player = None
 
 class Floor(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, screenSize, floorHeight):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface((screenSize[0], floorHeight))
         self.image.fill((255, 204, 102))
         self.rect = self.image.get_rect()
         self.rect.center = (screenSize[0]/2, screenSize[1]-floorHeight/2)
 
+
 class Cloud(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, screenSize, gameSpeed):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface((random.randint(150, 350),
                                      random.randint(50, 150)))
@@ -54,12 +30,12 @@ class Cloud(pygame.sprite.Sprite):
         self.rect.center = (screenSize[0] + self.rect.width,
                             screenSize[1]/2 -
                                 random.randint(100, screenSize[1]/2-100))
-        self.speed = random.randint(150, 300)/100
+        self.speed = random.randint(150, 300)/100*gameSpeed
+
 
     def update(self):
-        self.rect.x -= gameSpeed*self.speed
-        if (self.rect.x < -self.rect.width):
-            self.kill()
+        self.rect.x -= self.speed
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -72,66 +48,30 @@ class Player(pygame.sprite.Sprite):
         self.isJumping = False
         self.isCrouching = False
         self.hoverCount = 0
+        self.isOnFloor = False
+
 
     def crouch(self):
         if not self.isCrouching:
             self.isCrouching = True
             self.rect = self.rect.inflate(0, -25)
 
+
     def standup(self):
         if self.isCrouching:
             self.isCrouching = False
             self.rect = self.rect.inflate(0, 25)
 
+
     def update(self):
-        global isGameOver
-
-        if pygame.sprite.spritecollideany(player, enemies):
-            isGameOver = True
-            pass
-
         if not self.speed: self.rect.y += 1
 
         self.speed += 0.35
         self.rect.y += self.speed
 
-        isOnFloor = False
-        while pygame.sprite.spritecollideany(player, floors):
-            isOnFloor = True
-            self.rect.y -= 1
-
-        if not isDownJump:
-            self.hoverCount = 0
-
-        if isOnFloor:
-            self.speed = 0
-
-            if isDownJump:
-                self.isJumping = True
-
-                if self.isCrouching:
-                    self.standup()
-
-            elif isDownCrouch:
-                if not self.isCrouching:
-                    self.crouch()
-
-            elif self.isCrouching:
-                    self.standup()
-
-
-        if self.isJumping:
-            if isDownJump and self.hoverCount < 10:
-                self.speed -= 1 - self.speed/(15+self.hoverCount*3)
-                self.hoverCount += 1
-
-            else:
-                self.isJumping = False
-
-
 
 class Enemy(pygame.sprite.Sprite):
-    def setNextEnemyType(self):
+    def setNextEnemyType(self, score):
         if score < 10:
             self.type = 1
 
@@ -147,16 +87,20 @@ class Enemy(pygame.sprite.Sprite):
             if random.randint(1, 100) < 75: self.type = 1
             else:                           self.type = 2
 
+
     def setNextEnemySubtype(self):
         if self.type == 1:
             self.subtype = random.randint(1, 5)
         elif self.type == 2:
             self.subtype = random.randint(1, 3)
 
-    def __init__(self):
+
+    def __init__(self, screenSize, floorHeight, gameSpeed, score):
         pygame.sprite.Sprite.__init__(self)
 
-        self.setNextEnemyType()
+        self.speed = gameSpeed
+
+        self.setNextEnemyType(score)
         self.setNextEnemySubtype()
 
         self.height = screenSize[1] - floorHeight
@@ -181,142 +125,203 @@ class Enemy(pygame.sprite.Sprite):
 
         self.rect.center = (screenSize[0] + self.rect.width, self.height)
 
+
     def update(self):
-        global score, gameSpeed
-        self.rect.x -= gameSpeed
-        if (self.rect.x < -self.rect.width):
-            self.kill()
-            score += 1
-            gameSpeed += 0.025
-
-def newGame():
-    global player, floor, enemies, sprites, score
-    global gameSpeed, isGameOver, enemyCD, enemyChance
-
-    for enemy in enemies:
-        enemy.kill()
-
-    if player: player.kill()
-
-    player = Player()
-    sprites.add(player)
-
-    gameSpeed = 3.0
-    score = 0
-    isGameOver = False
-    isPaused = False
-
-    enemyCD = 0
-    enemyChance = 100.0
+        self.rect.x -= self.speed
 
 
-def init():
-    global player, floor, enemies, sprites, score
+class Drakora():
+    def newGame(self):
+        for enemy in self.enemies:
+            enemy.kill()
 
-    random.seed()
-    pygame.init()
-    screen = pygame.display.set_mode(screenSize)
-    pygame.display.set_caption('Drakora')
-    clock = pygame.time.Clock()
+        if self.player: self.player.kill()
 
-    sprites = pygame.sprite.Group()
-    floors.add(Floor())
-    sprites.add(floors)
+        self.player = Player()
+        self.sprites.add(self.player)
 
-    newGame()
+        self.score = 0
+        self.isGameOver = False
+        self.isPaused = False
 
-    return screen, clock, sprites
+        self.gameSpeed = 3
 
-def deinit():
-    pygame.quit()
+        self.enemyCD = 0
+        self.enemyChance = 100.0
 
-def render(screen, sprites):
-    screen.fill((102, 153, 255))
-    sprites.draw(screen)
 
-    font = pygame.font.Font(pygame.font.match_font('liberation mono'), 32)
-    text = font.render('%d'%(score), True, (255, 255, 255))
-    rect = text.get_rect()
-    rect.midtop = (rect.width/2+10,10)
-    screen.blit(text, rect)
+    def __init__(self):
+        self.buttonsPause = (pygame.K_p,)
+        self.buttonsQuit = (pygame.K_F10,)
+        self.buttonsNewGame = (pygame.K_RETURN,)
+        self.buttonsJump = (pygame.K_UP, pygame.K_SPACE,)
+        self.buttonsCrouch = (pygame.K_DOWN,)
 
-    if isGameOver:
-        font = pygame.font.Font(pygame.font.match_font('liberation mono'), 56)
-        text = font.render('GAME OVER', True, (255, 255, 255))
+        self.screenSize = (800, 600)
+        self.targetFps = 60
+
+        self.floorHeight = 50
+
+        self.isDownJump = False
+        self.isDownCrouch = False
+
+        self.floors = pygame.sprite.Group()
+        self.enemies = pygame.sprite.Group()
+        self.clouds = pygame.sprite.Group()
+        self.player = None
+
+        random.seed()
+        pygame.init()
+        self.screen = pygame.display.set_mode(self.screenSize)
+        pygame.display.set_caption('Drakora')
+        self.clock = pygame.time.Clock()
+
+        self.sprites = pygame.sprite.Group()
+        self.floors.add(Floor(self.screenSize, self.floorHeight))
+        self.sprites.add(self.floors)
+
+        self.newGame()
+
+
+    def __del__(self):
+        pygame.quit()
+
+
+    def render(self):
+        self.screen.fill((102, 153, 255))
+        self.sprites.draw(self.screen)
+
+        font = pygame.font.Font(pygame.font.match_font('liberation mono'), 32)
+        text = font.render('%d'%(self.score), True, (255, 255, 255))
         rect = text.get_rect()
-        rect.midtop = tuple(i/2 for i in screenSize)
-        screen.blit(text, rect)
-    elif isPaused:
-        font = pygame.font.Font(pygame.font.match_font('liberation mono'), 56)
-        text = font.render('PAUSED', True, (255, 255, 255))
-        rect = text.get_rect()
-        rect.midtop = tuple(i/2 for i in screenSize)
-        screen.blit(text, rect)
+        rect.midtop = (rect.width/2+10,10)
+        self.screen.blit(text, rect)
+
+        if self.isGameOver:
+            font = pygame.font.Font(pygame.font.match_font('liberation mono'), 56)
+            text = font.render('GAME OVER', True, (255, 255, 255))
+            rect = text.get_rect()
+            rect.midtop = tuple(i/2 for i in self.screenSize)
+            self.screen.blit(text, rect)
+        elif self.isPaused:
+            font = pygame.font.Font(pygame.font.match_font('liberation mono'), 56)
+            text = font.render('PAUSED', True, (255, 255, 255))
+            rect = text.get_rect()
+            rect.midtop = tuple(i/2 for i in self.screenSize)
+            self.screen.blit(text, rect)
+
+        pygame.display.flip()
 
 
-    pygame.display.flip()
+    def collideCheck(self):
+        if pygame.sprite.spritecollideany(self.player, self.enemies):
+            self.isGameOver = True
+
+        for enemy in self.enemies:
+            if (enemy.rect.x < -enemy.rect.width):
+                enemy.kill()
+                self.score += 1
+                self.gameSpeed += 0.025
+                for enemy in self.enemies: enemy.speed = self.gameSpeed
+
+        for cloud in self.clouds:
+            if (cloud.rect.x < -cloud.rect.width):
+                cloud.kill()
+
+        self.player.isOnFloor = False
+        while pygame.sprite.spritecollideany(self.player, self.floors):
+            self.player.isOnFloor = True
+            self.player.rect.y -= 1
+
+        if not self.isDownJump:
+            self.player.hoverCount = 0
+
+        if self.player.isOnFloor:
+            self.player.speed = 0
+
+            if self.isDownJump:
+                self.player.isJumping = True
+
+                if self.player.isCrouching:
+                    self.player.standup()
+
+            elif self.isDownCrouch:
+                if not self.player.isCrouching:
+                    self.player.crouch()
+
+            elif self.player.isCrouching:
+                    self.player.standup()
+
+        if self.player.isJumping:
+            if self.isDownJump and self.player.hoverCount < 10:
+                self.player.speed -= 1 - self.player.speed/(15+
+                                              self.player.hoverCount*3)
+                self.player.hoverCount += 1
+
+            else:
+                self.player.isJumping = False
 
 
-def logic(clock, sprites):
-    global enemyCD, enemyChance, isDownJump, isDownCrouch, isPaused
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            return False
-
-        elif event.type == pygame.KEYDOWN:
-            if event.key in buttonsQuit:
+    def logic(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
                 return False
-            if event.key in buttonsCrouch:
-                isDownCrouch = True
-            elif event.key in buttonsJump:
-                isDownJump = True
-            elif event.key in buttonsNewGame:
-                if isGameOver: newGame()
-            elif event.key in buttonsPause:
-                isPaused = not isPaused
 
-        elif event.type == pygame.KEYUP:
-            if event.key in buttonsCrouch:
-                isDownCrouch = False
-            if event.key in buttonsJump:
-                isDownJump = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key in self.buttonsQuit:
+                    return False
+                if event.key in self.buttonsCrouch:
+                    self.isDownCrouch = True
+                elif event.key in self.buttonsJump:
+                    self.isDownJump = True
+                elif event.key in self.buttonsNewGame:
+                    if self.isGameOver: self.newGame()
+                elif event.key in self.buttonsPause:
+                    self.isPaused = not self.isPaused
 
-    if not isGameOver and not isPaused:
-        sprites.update()
+            elif event.type == pygame.KEYUP:
+                if event.key in self.buttonsCrouch:
+                    self.isDownCrouch = False
+                if event.key in self.buttonsJump:
+                    self.isDownJump = False
 
-        enemyCD -= gameSpeed
+        if not self.isGameOver and not self.isPaused:
+            self.sprites.update()
 
-        if random.randint(1, 100) == 1:
-            cloud = Cloud()
-            clouds.add(cloud)
-            sprites.add(cloud)
+            self.enemyCD -= self.gameSpeed
 
-        if enemyCD <= 0:
-            enemyChance += (1/targetFps) * enemyChance/8
+            if random.randint(1, 100) == 1:
+                cloud = Cloud(self.screenSize, self.gameSpeed)
+                self.clouds.add(cloud)
+                self.sprites.add(cloud)
 
-            if random.randint(1, 100) < enemyChance:
-                enemyCD = 200
-                enemyChance = 1
-                enemy = Enemy()
-                enemies.add(enemy)
-                sprites.add(enemy)
+            if self.enemyCD <= 0:
+                self.enemyChance += (1/self.targetFps) * self.enemyChance/8
+
+                if random.randint(1, 100) < self.enemyChance:
+                    self.enemyCD = 200
+                    self.enemyChance = 1
+                    enemy = Enemy(self.screenSize, self.floorHeight,
+                                  self.gameSpeed, self.score)
+                    self.enemies.add(enemy)
+                    self.sprites.add(enemy)
+
+        self.collideCheck()
+
+        self.clock.tick(self.targetFps)
+
+        return True
 
 
-    clock.tick(targetFps)
+    def play(self):
+        isRunning = True
 
-    return True
+        while isRunning:
+            isRunning = self.logic()
+            self.render()
 
-def main_loop(screen, clock, sprites):
-    global isGameOver
-
-    isRunning = True
-
-    while isRunning:
-        isRunning = logic(clock, sprites)
-        render(screen, sprites)
 
 if __name__ == '__main__':
-    screen, clock, sprites = init()
-    main_loop(screen, clock, sprites)
-    deinit()
+    drakora = Drakora()
+    drakora.play()
+    del Drakora
