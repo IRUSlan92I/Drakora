@@ -73,7 +73,7 @@ class Player(pygame.sprite.Sprite):
 class Enemy(pygame.sprite.Sprite):
     def setNextEnemyType(self, score):
         if score < 10:
-            self.type = 2
+            self.type = 1
 
         elif score < 25:
             if random.randint(1, 100) < 95: self.type = 1
