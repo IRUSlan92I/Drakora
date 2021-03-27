@@ -7,6 +7,10 @@ Written in Python 3.X using Pygame library
 
 import pygame
 import random
+import time
+
+
+timeDiff = 0
 
 
 class Floor(pygame.sprite.Sprite):
@@ -34,7 +38,7 @@ class Cloud(pygame.sprite.Sprite):
 
 
     def update(self):
-        self.rect.x -= self.speed
+        self.rect.x -= self.speed*timeDiff
 
 
 class Player(pygame.sprite.Sprite):
@@ -66,8 +70,8 @@ class Player(pygame.sprite.Sprite):
     def update(self):
         if not self.speed: self.rect.y += 1
 
-        self.speed += 0.35
-        self.rect.y += self.speed
+        self.speed += 0.17
+        self.rect.y += self.speed*timeDiff
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -128,9 +132,9 @@ class Enemy(pygame.sprite.Sprite):
 
     def update(self):
         if self.type == 1:
-            self.rect.x -= self.speed
+            self.rect.x -= self.speed*timeDiff
         else:
-            self.rect.x -= self.speed*2
+            self.rect.x -= self.speed*2*timeDiff
 
 
 class Drakora():
@@ -147,7 +151,7 @@ class Drakora():
         self.isGameOver = False
         self.isPaused = False
 
-        self.gameSpeed = 3
+        self.gameSpeed = 2
 
         self.enemyCD = 0
         self.enemyChance = 100.0
@@ -161,7 +165,7 @@ class Drakora():
         self.buttonsCrouch = (pygame.K_DOWN,)
 
         self.screenSize = (800, 600)
-        self.targetFps = 60
+        self.targetFps = 120
 
         self.floorHeight = 50
 
@@ -186,6 +190,8 @@ class Drakora():
         font = pygame.font.match_font('liberation mono')
         self.fontScore = pygame.font.Font(font, 32)
         self.fontMessage = pygame.font.Font(font, 56)
+
+        self.timeOfLastFrameInNs = time.time_ns()
 
         self.newGame()
 
@@ -262,7 +268,7 @@ class Drakora():
                     self.player.standup()
 
         if self.player.isJumping:
-            if self.isDownJump and self.player.hoverCount < 10:
+            if self.isDownJump and self.player.hoverCount < 7:
                 self.player.speed -= 1 - self.player.speed/(15+
                                               self.player.hoverCount*3)
                 self.player.hoverCount += 1
@@ -317,17 +323,21 @@ class Drakora():
 
         self.collideCheck()
 
-        self.clock.tick(self.targetFps)
-
         return True
 
 
     def play(self):
-        isRunning = True
+        global timeDiff
 
+        isRunning = True
         while isRunning:
-            isRunning = self.logic()
+            timeOfNewFrameInNs = time.time_ns()
+            timeDiff = (timeOfNewFrameInNs-self.timeOfLastFrameInNs)/10000000
+            self.timeOfLastFrameInNs = timeOfNewFrameInNs
+
+            self.clock.tick(self.targetFps)
             self.render()
+            isRunning = self.logic()
 
 
 if __name__ == '__main__':
