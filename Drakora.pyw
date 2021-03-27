@@ -1,7 +1,5 @@
 """
-First test Pygame project
-
-Written in Python 3.X using Pygame library
+Main game class
 """
 
 
@@ -10,44 +8,30 @@ import random
 
 from Player import Player
 from Enemy import Enemy
+from Cloud import Cloud
+from Floor import Floor
 
-
-class Floor(pygame.sprite.Sprite):
-    def __init__(self, screenSize, floorHeight):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((screenSize[0], floorHeight))
-        self.image.fill((255, 204, 102))
-        self.rect = self.image.get_rect()
-        self.rect.center = (screenSize[0]/2, screenSize[1]-floorHeight/2)
-
-
-class Cloud(pygame.sprite.Sprite):
-    def __init__(self, screenSize, gameSpeed):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((random.randint(150, 350),
-                                     random.randint(50, 150)))
-        self.image.fill((random.randint(235, 255),
-                         random.randint(235, 255),
-                         random.randint(235, 255)))
-        self.rect = self.image.get_rect()
-        self.rect.center = (screenSize[0] + self.rect.width,
-                            screenSize[1]/2 -
-                                random.randint(100, screenSize[1]/2-100))
-        self.speed = random.randint(150, 300)/100*gameSpeed
-
-
-    def update(self):
-        if (self.rect.x < -self.rect.width):
-            self.kill()
-
-        self.rect.x -= self.speed
 
 class Drakora():
     def getGameSpeed(self):
         return self.__gameSpeed
 
+
     def getScore(self):
         return self.__score
+
+
+    def getScreenWidth(self):
+        return self.screenSize[0]
+
+
+    def getScreenHeight(self):
+        return self.screenSize[1]
+
+
+    def getFloorHeight(self):
+        return self.floorHeight
+
 
     def addScore(self, score):
         self.__score += score
@@ -102,7 +86,7 @@ class Drakora():
         self.clock = pygame.time.Clock()
 
         self.sprites = pygame.sprite.Group()
-        self.floors.add(Floor(self.screenSize, self.floorHeight))
+        self.floors.add(Floor(self))
         self.sprites.add(self.floors)
 
         font = pygame.font.match_font('liberation mono')
@@ -129,7 +113,7 @@ class Drakora():
 
         self.renderText('%d'%(self.__score),
                         self.fontScore, (255, 255, 255),
-                         (self.screenSize[0]/2,20))
+                         (self.getScreenWidth()/2,20))
 
         if self.isGameOver:
             self.renderText('GAME OVER',
@@ -146,7 +130,7 @@ class Drakora():
     def collideCheck(self):
         if pygame.sprite.spritecollideany(self.player, self.enemies):
             self.isGameOver = True
-            
+
         self.player.isOnFloor = False
 
         while pygame.sprite.spritecollideany(self.player, self.floors):
@@ -210,18 +194,18 @@ class Drakora():
 
             self.enemyCD -= self.__gameSpeed
 
-            if random.randint(1, 150) == 1:
-                cloud = Cloud(self.screenSize, self.__gameSpeed)
+            if random.randint(1, 50) == 1:
+                cloud = Cloud(self)
                 self.clouds.add(cloud)
                 self.sprites.add(cloud)
 
             if self.enemyCD <= 0:
                 self.enemyChance += (1/self.targetFps) * self.enemyChance/8
 
-                if random.randint(1, 100) < self.enemyChance:
-                    self.enemyCD = 200
+                if random.randint(1, 150) < self.enemyChance:
+                    self.enemyCD = 300
                     self.enemyChance = 1
-                    enemy = Enemy(self.screenSize, self.floorHeight, self)
+                    enemy = Enemy(self)
                     self.enemies.add(enemy)
                     self.sprites.add(enemy)
 

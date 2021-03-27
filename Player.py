@@ -1,4 +1,10 @@
+"""
+Player entity class
+"""
+
+
 import pygame
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -31,4 +37,3 @@ class Player(pygame.sprite.Sprite):
 
         self.speed += 0.17
         self.rect.y += self.speed
-

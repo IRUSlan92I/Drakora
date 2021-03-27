@@ -1,5 +1,10 @@
-import pygame
+"""
+Enemy entity class
+"""
+
+
 import random
+
 
 class Enemy(pygame.sprite.Sprite):
     def setNextEnemyType(self, score):
@@ -26,7 +31,7 @@ class Enemy(pygame.sprite.Sprite):
             self.subtype = random.randint(1, 7)
 
 
-    def __init__(self, screenSize, floorHeight, mainGameClass):
+    def __init__(self, mainGameClass):
         pygame.sprite.Sprite.__init__(self)
 
         self.thisGame = mainGameClass
@@ -36,7 +41,7 @@ class Enemy(pygame.sprite.Sprite):
         self.setNextEnemyType(self.thisGame.getScore())
         self.setNextEnemySubtype()
 
-        self.height = screenSize[1] - floorHeight
+        self.height = mainGameClass.getScreenHeight() - mainGameClass.floorHeight
 
         if self.type == 1:
             if self.subtype == 1:   self.image = pygame.Surface((25, 75))
@@ -56,7 +61,8 @@ class Enemy(pygame.sprite.Sprite):
             self.rect = self.image.get_rect()
             self.height -= self.rect.height/2 + 10 + 10*self.subtype
 
-        self.rect.center = (screenSize[0] + self.rect.width, self.height)
+        self.rect.center = (mainGameClass.getScreenWidth() + self.rect.width,
+                            self.height)
 
 
     def update(self):
