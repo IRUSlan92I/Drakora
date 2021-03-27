@@ -8,6 +8,9 @@ Written in Python 3.X using Pygame library
 import pygame
 import random
 
+from Player import Player
+from Enemy import Enemy
+
 
 class Floor(pygame.sprite.Sprite):
     def __init__(self, screenSize, floorHeight):
@@ -34,106 +37,25 @@ class Cloud(pygame.sprite.Sprite):
 
 
     def update(self):
+        if (self.rect.x < -self.rect.width):
+            self.kill()
+
         self.rect.x -= self.speed
 
-
-class Player(pygame.sprite.Sprite):
-    def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((50, 75))
-        self.image.fill((153, 151, 0))
-        self.rect = self.image.get_rect()
-        self.rect.center = (100, 400)
-        self.speed = 0.0
-        self.isJumping = False
-        self.isCrouching = False
-        self.hoverCount = 0
-        self.isOnFloor = False
-
-
-    def crouch(self):
-        if not self.isCrouching:
-            self.isCrouching = True
-            self.rect = self.rect.inflate(0, -25)
-
-
-    def standup(self):
-        if self.isCrouching:
-            self.isCrouching = False
-            self.rect = self.rect.inflate(0, 25)
-
-
-    def update(self):
-        if not self.speed: self.rect.y += 1
-
-        self.speed += 0.17
-        self.rect.y += self.speed
-
-
-class Enemy(pygame.sprite.Sprite):
-    def setNextEnemyType(self, score):
-        if score < 10:
-            self.type = 1
-
-        elif score < 20:
-            if random.randint(1, 100) < 95: self.type = 1
-            else:                           self.type = 2
-
-        elif score < 40:
-            if random.randint(1, 100) < 85: self.type = 1
-            else:                           self.type = 2
-
-        else:
-            if random.randint(1, 100) < 75: self.type = 1
-            else:                           self.type = 2
-
-
-    def setNextEnemySubtype(self):
-        if self.type == 1:
-            self.subtype = random.randint(1, 5)
-        elif self.type == 2:
-            self.subtype = random.randint(1, 7)
-
-
-    def __init__(self, screenSize, floorHeight, gameSpeed, score):
-        pygame.sprite.Sprite.__init__(self)
-
-        self.speed = gameSpeed
-
-        self.setNextEnemyType(score)
-        self.setNextEnemySubtype()
-
-        self.height = screenSize[1] - floorHeight
-
-        if self.type == 1:
-            if self.subtype == 1:   self.image = pygame.Surface((25, 75))
-            elif self.subtype == 2: self.image = pygame.Surface((25, 25))
-            elif self.subtype == 3: self.image = pygame.Surface((75, 25))
-            elif self.subtype == 4: self.image = pygame.Surface((50, 25))
-            elif self.subtype == 5: self.image = pygame.Surface((50, 50))
-            else:                   self.image = pygame.Surface((25, 50))
-
-            self.image.fill((0, 153, 0))
-            self.rect = self.image.get_rect()
-            self.height -= self.rect.height/2
-
-        elif self.type == 2:
-            self.image = pygame.Surface((50, 25))
-            self.image.fill((51, 51, 0))
-            self.rect = self.image.get_rect()
-            self.height -= self.rect.height/2 + 10 + 10*self.subtype
-
-        self.rect.center = (screenSize[0] + self.rect.width, self.height)
-
-
-    def update(self):
-        if self.type == 1:
-            self.rect.x -= self.speed
-        else:
-            self.rect.x -= self.speed*2
-
-
 class Drakora():
+    def getGameSpeed(self):
+        return self.__gameSpeed
+
+    def getScore(self):
+        return self.__score
+
+    def addScore(self, score):
+        self.__score += score
+
+        if self.__score%25 == 0:
+            self.__gameSpeed += 1
+
+
     def newGame(self):
         for enemy in self.enemies:
             enemy.kill()
@@ -143,11 +65,11 @@ class Drakora():
         self.player = Player()
         self.sprites.add(self.player)
 
-        self.score = 0
+        self.__score = 0
         self.isGameOver = False
         self.isPaused = False
 
-        self.gameSpeed = 2
+        self.__gameSpeed = 2
 
         self.enemyCD = 0
         self.enemyChance = 100.0
@@ -205,7 +127,7 @@ class Drakora():
         self.screen.fill((102, 153, 255))
         self.sprites.draw(self.screen)
 
-        self.renderText('%d'%(self.score),
+        self.renderText('%d'%(self.__score),
                         self.fontScore, (255, 255, 255),
                          (self.screenSize[0]/2,20))
 
@@ -224,21 +146,9 @@ class Drakora():
     def collideCheck(self):
         if pygame.sprite.spritecollideany(self.player, self.enemies):
             self.isGameOver = True
-
-        for enemy in self.enemies:
-            if (enemy.rect.x < -enemy.rect.width):
-                enemy.kill()
-                self.score += 1
-                if self.score%25 == 0:
-                    self.gameSpeed += 1
-                """Quick fix of running cacti. Some good fix needed"""
-                for enemy in self.enemies: enemy.speed = self.gameSpeed
-
-        for cloud in self.clouds:
-            if (cloud.rect.x < -cloud.rect.width):
-                cloud.kill()
-
+            
         self.player.isOnFloor = False
+
         while pygame.sprite.spritecollideany(self.player, self.floors):
             self.player.isOnFloor = True
             self.player.rect.y -= 1
@@ -298,10 +208,10 @@ class Drakora():
         if not self.isGameOver and not self.isPaused:
             self.sprites.update()
 
-            self.enemyCD -= self.gameSpeed
+            self.enemyCD -= self.__gameSpeed
 
             if random.randint(1, 150) == 1:
-                cloud = Cloud(self.screenSize, self.gameSpeed)
+                cloud = Cloud(self.screenSize, self.__gameSpeed)
                 self.clouds.add(cloud)
                 self.sprites.add(cloud)
 
@@ -311,8 +221,7 @@ class Drakora():
                 if random.randint(1, 100) < self.enemyChance:
                     self.enemyCD = 200
                     self.enemyChance = 1
-                    enemy = Enemy(self.screenSize, self.floorHeight,
-                                  self.gameSpeed, self.score)
+                    enemy = Enemy(self.screenSize, self.floorHeight, self)
                     self.enemies.add(enemy)
                     self.sprites.add(enemy)
 
