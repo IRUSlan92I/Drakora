@@ -73,7 +73,7 @@ class Player(pygame.sprite.Sprite):
 class Enemy(pygame.sprite.Sprite):
     def setNextEnemyType(self, score):
         if score < 10:
-            self.type = 1
+            self.type = 2
 
         elif score < 25:
             if random.randint(1, 100) < 95: self.type = 1
@@ -92,7 +92,7 @@ class Enemy(pygame.sprite.Sprite):
         if self.type == 1:
             self.subtype = random.randint(1, 5)
         elif self.type == 2:
-            self.subtype = random.randint(1, 3)
+            self.subtype = random.randint(1, 7)
 
 
     def __init__(self, screenSize, floorHeight, gameSpeed, score):
@@ -121,13 +121,16 @@ class Enemy(pygame.sprite.Sprite):
             self.image = pygame.Surface((50, 25))
             self.image.fill((51, 51, 0))
             self.rect = self.image.get_rect()
-            self.height -= self.rect.height/2 + 10 + 25*self.subtype
+            self.height -= self.rect.height/2 + 10 + 10*self.subtype
 
         self.rect.center = (screenSize[0] + self.rect.width, self.height)
 
 
     def update(self):
-        self.rect.x -= self.speed
+        if self.type == 1:
+            self.rect.x -= self.speed
+        else:
+            self.rect.x -= self.speed*2
 
 
 class Drakora():
@@ -180,6 +183,10 @@ class Drakora():
         self.floors.add(Floor(self.screenSize, self.floorHeight))
         self.sprites.add(self.floors)
 
+        font = pygame.font.match_font('liberation mono')
+        self.fontScore = pygame.font.Font(font, 32)
+        self.fontMessage = pygame.font.Font(font, 56)
+
         self.newGame()
 
 
@@ -187,28 +194,29 @@ class Drakora():
         pygame.quit()
 
 
+    def renderText(self, text, font, color, center):
+        render = font.render(text, True, color)
+        rect = render.get_rect()
+        rect.center = center
+        self.screen.blit(render, rect)
+
+
     def render(self):
         self.screen.fill((102, 153, 255))
         self.sprites.draw(self.screen)
 
-        font = pygame.font.Font(pygame.font.match_font('liberation mono'), 32)
-        text = font.render('%d'%(self.score), True, (255, 255, 255))
-        rect = text.get_rect()
-        rect.midtop = (rect.width/2+10,10)
-        self.screen.blit(text, rect)
+        self.renderText('%d'%(self.score),
+                        self.fontScore, (255, 255, 255),
+                         (self.screenSize[0]/2,20))
 
         if self.isGameOver:
-            font = pygame.font.Font(pygame.font.match_font('liberation mono'), 56)
-            text = font.render('GAME OVER', True, (255, 255, 255))
-            rect = text.get_rect()
-            rect.midtop = tuple(i/2 for i in self.screenSize)
-            self.screen.blit(text, rect)
+            self.renderText('GAME OVER',
+                            self.fontMessage, (255, 255, 255),
+                            tuple(i/2 for i in self.screenSize))
         elif self.isPaused:
-            font = pygame.font.Font(pygame.font.match_font('liberation mono'), 56)
-            text = font.render('PAUSED', True, (255, 255, 255))
-            rect = text.get_rect()
-            rect.midtop = tuple(i/2 for i in self.screenSize)
-            self.screen.blit(text, rect)
+            self.renderText('PAUSED',
+                            self.fontMessage, (255, 255, 255),
+                            tuple(i/2 for i in self.screenSize))
 
         pygame.display.flip()
 
@@ -222,6 +230,7 @@ class Drakora():
                 enemy.kill()
                 self.score += 1
                 self.gameSpeed += 0.025
+                """Quick fix of running cacti. Some good fix needed"""
                 for enemy in self.enemies: enemy.speed = self.gameSpeed
 
         for cloud in self.clouds:
