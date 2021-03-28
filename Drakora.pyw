@@ -36,8 +36,9 @@ class Drakora():
     def addScore(self, score):
         self.__score += score
 
-        if self.__score%25 == 0:
+        if self.__score%self.speedUpRate == 0:
             self.__gameSpeed += 1
+            self.speedUpLabelCD = self.targetFps
 
 
     def newGame(self):
@@ -55,8 +56,11 @@ class Drakora():
 
         self.__gameSpeed = 2
 
-        self.enemyCD = 0
+        self.enemyCount = 0
+        self.enemyCD = self.getNextEnemyCD()
         self.enemyChance = 100.0
+
+        self.speedUpLabelCD = 0
 
 
     def __init__(self):
@@ -79,6 +83,11 @@ class Drakora():
         self.clouds = pygame.sprite.Group()
         self.player = None
 
+        self.speedUpRate = 25
+
+        self.godmodeCount = 0
+        self.isGodmode = False
+
         random.seed()
         pygame.init()
         self.screen = pygame.display.set_mode(self.screenSize)
@@ -92,6 +101,7 @@ class Drakora():
         font = pygame.font.match_font('liberation mono')
         self.fontScore = pygame.font.Font(font, 32)
         self.fontMessage = pygame.font.Font(font, 56)
+        self.fontGodmode = pygame.font.Font(font, 12)
 
         self.newGame()
 
@@ -123,13 +133,35 @@ class Drakora():
             self.renderText('PAUSED',
                             self.fontMessage, (255, 255, 255),
                             tuple(i/2 for i in self.screenSize))
+        elif self.speedUpLabelCD > 0:
+            self.speedUpLabelCD -= 1
+            self.renderText('SPEED UP',
+                            self.fontMessage, (255, 255, 255),
+                            tuple(i/2 for i in self.screenSize))
+
+
+
+        if self.isGodmode:
+            self.renderText('godmode',
+                            self.fontGodmode, (255, 255, 255),
+                            (self.getScreenWidth()/2,40))
 
         pygame.display.flip()
 
 
+    def getNextEnemyCD(self):
+        if self.enemyCount <= 5:
+            return 1000
+        elif self.enemyCount <= 5:
+            return 800 - 100*self.enemyCount
+        elif self.enemyCount%self.speedUpRate == 0:
+            return 1000
+        else:
+            return 300
+
     def collideCheck(self):
         if pygame.sprite.spritecollideany(self.player, self.enemies):
-            self.isGameOver = True
+            if not self.isGodmode: self.isGameOver = True
 
         self.player.isOnFloor = False
 
@@ -174,7 +206,7 @@ class Drakora():
             elif event.type == pygame.KEYDOWN:
                 if event.key in self.buttonsQuit:
                     return False
-                if event.key in self.buttonsCrouch:
+                elif event.key in self.buttonsCrouch:
                     self.isDownCrouch = True
                 elif event.key in self.buttonsJump:
                     self.isDownJump = True
@@ -186,8 +218,28 @@ class Drakora():
             elif event.type == pygame.KEYUP:
                 if event.key in self.buttonsCrouch:
                     self.isDownCrouch = False
-                if event.key in self.buttonsJump:
+                    godmodeCount = 0
+                elif event.key in self.buttonsJump:
                     self.isDownJump = False
+                    godmodeCount = 0
+                elif event.key == pygame.K_g:
+                    if self.godmodeCount == 0:  self.godmodeCount += 1
+                    else:                       self.godmodeCount == 0
+                elif event.key == pygame.K_o:
+                    if (self.godmodeCount == 1 or
+                       self.godmodeCount == 4): self.godmodeCount += 1
+                    else:                       self.godmodeCount == 0
+                elif event.key == pygame.K_d:
+                    if (self.godmodeCount == 2 or
+                       self.godmodeCount == 5): self.godmodeCount += 1
+                    else:                       self.godmodeCount == 0
+                elif event.key == pygame.K_m:
+                    if self.godmodeCount == 3:  self.godmodeCount += 1
+                    else:                       self.godmodeCount == 0
+                elif event.key == pygame.K_e:
+                    if self.godmodeCount == 6:
+                        self.godmodeCount == 0
+                        self.isGodmode = not self.isGodmode
 
         if not self.isGameOver and not self.isPaused:
             self.sprites.update()
@@ -203,7 +255,8 @@ class Drakora():
                 self.enemyChance += (1/self.targetFps) * self.enemyChance/8
 
                 if random.randint(1, 150) < self.enemyChance:
-                    self.enemyCD = 300
+                    self.enemyCount += 1
+                    self.enemyCD = self.getNextEnemyCD()
                     self.enemyChance = 1
                     enemy = Enemy(self)
                     self.enemies.add(enemy)

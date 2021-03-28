@@ -3,6 +3,7 @@ Enemy entity class
 """
 
 
+import pygame
 import random
 
 
