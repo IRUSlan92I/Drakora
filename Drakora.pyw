@@ -6,6 +6,8 @@ Main game class
 import pygame
 import random
 
+from collections import deque
+
 from Player import Player
 from StandingEnemy import StandingEnemy
 from FlyingEnemy import FlyingEnemy
@@ -100,6 +102,18 @@ class Drakora():
         self.fontMessage = pygame.font.Font(font, 56)
         self.fontGodmode = pygame.font.Font(font, 12)
 
+        self.charKeys = {
+            pygame.K_a:'a', pygame.K_b:'b', pygame.K_c:'c', pygame.K_d:'d',
+            pygame.K_e:'e', pygame.K_f:'f', pygame.K_g:'g', pygame.K_h:'h',
+            pygame.K_i:'i', pygame.K_j:'j', pygame.K_k:'k', pygame.K_l:'l',
+            pygame.K_m:'m', pygame.K_n:'n', pygame.K_o:'o', pygame.K_p:'p',
+            pygame.K_q:'q', pygame.K_r:'r', pygame.K_s:'s', pygame.K_t:'t',
+            pygame.K_u:'u', pygame.K_v:'v', pygame.K_w:'w', pygame.K_x:'x',
+            pygame.K_y:'y', pygame.K_z:'z',
+        }
+        self.pressedKeys = deque(maxlen=10)
+        self.isPressedKeysUpdated = True
+
         self.newGame()
 
 
@@ -142,6 +156,11 @@ class Drakora():
                             self.fontGodmode, (255, 255, 255),
                             (self.getScreenWidth()/2,40))
 
+        pressedKeysStr = ''.join(self.pressedKeys)
+        self.renderText(pressedKeysStr,
+                        self.fontGodmode, (255, 255, 255),
+                        (self.getScreenWidth()/2,70))
+
         pygame.display.flip()
 
 
@@ -169,6 +188,14 @@ class Drakora():
             self.player.rect.y -= 1
 
 
+    def doCheats(self):
+        if self.isPressedKeysUpdated:
+            pressedKeysStr = ''.join(self.pressedKeys)
+            if pressedKeysStr.endswith('godmode'):
+                self.isGodmode = not self.isGodmode
+            self.isPressedKeysUpdated = False
+
+
     def logic(self):
         self.player.updateSpeed(self.__gameSpeed)
 
@@ -187,26 +214,11 @@ class Drakora():
                     self.isPaused = not self.isPaused
 
             elif event.type == pygame.KEYUP:
-                if event.key == pygame.K_g:
-                    if self.godmodeCount == 0:  self.godmodeCount += 1
-                    else:                       self.godmodeCount == 0
-                elif event.key == pygame.K_o:
-                    if (self.godmodeCount == 1 or
-                       self.godmodeCount == 4): self.godmodeCount += 1
-                    else:                       self.godmodeCount == 0
-                elif event.key == pygame.K_d:
-                    if (self.godmodeCount == 2 or
-                       self.godmodeCount == 5): self.godmodeCount += 1
-                    else:                       self.godmodeCount == 0
-                elif event.key == pygame.K_m:
-                    if self.godmodeCount == 3:  self.godmodeCount += 1
-                    else:                       self.godmodeCount == 0
-                elif event.key == pygame.K_e:
-                    if self.godmodeCount == 6:
-                        self.godmodeCount == 0
-                        self.isGodmode = not self.isGodmode
-                else:
-                    self.godmodeCount = 0
+                if event.key in self.charKeys:
+                    self.pressedKeys.append(self.charKeys[event.key])
+                    self.isPressedKeysUpdated = True
+
+        self.doCheats()
 
         if not self.isGameOver and not self.isPaused:
             self.sprites.update()
