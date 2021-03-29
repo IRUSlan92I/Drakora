@@ -51,7 +51,7 @@ class Drakora():
         if self.player: self.player.kill()
 
         self.player = Player()
-        self.sprites.add(self.player)
+        self.players.add(self.player)
 
         self.__score = 0
         self.isGameOver = False
@@ -68,34 +68,36 @@ class Drakora():
 
 
     def __init__(self):
+        random.seed()
+        pygame.init()
+        self.screenSize = (800, 600)
+        self.screen = pygame.display.set_mode(self.screenSize)
+        pygame.display.set_caption('Drakora')
+        self.clock = pygame.time.Clock()
+
         self.buttonsPause = (pygame.K_p,)
         self.buttonsQuit = (pygame.K_F10,)
         self.buttonsNewGame = (pygame.K_RETURN,)
 
-        self.screenSize = (800, 600)
         self.targetFps = 120
 
         self.floorHeight = 50
 
+        self.players = pygame.sprite.Group()
         self.floors = pygame.sprite.Group()
         self.enemies = pygame.sprite.Group()
-        self.clouds = pygame.sprite.Group()
+        self.cloudGroups = (pygame.sprite.Group(),
+                            pygame.sprite.Group(),
+                            pygame.sprite.Group(),)
         self.player = None
+
+        self.floors.add(Floor(self))
 
         self.speedUpRate = 25
 
         self.godmodeCount = 0
         self.isGodmode = False
 
-        random.seed()
-        pygame.init()
-        self.screen = pygame.display.set_mode(self.screenSize)
-        pygame.display.set_caption('Drakora')
-        self.clock = pygame.time.Clock()
-
-        self.sprites = pygame.sprite.Group()
-        self.floors.add(Floor(self))
-        self.sprites.add(self.floors)
 
         font = pygame.font.match_font('liberation mono')
         self.fontScore = pygame.font.Font(font, 32)
@@ -130,7 +132,9 @@ class Drakora():
 
     def render(self):
         self.screen.fill((102, 153, 255))
-        self.sprites.draw(self.screen)
+        for cloudGroup in self.cloudGroups: cloudGroup.draw(self.screen)
+        self.enemies.draw(self.screen)
+        self.players.draw(self.screen)
         self.floors.draw(self.screen)
 
         self.renderText('%d'%(self.__score),
@@ -216,14 +220,17 @@ class Drakora():
         self.doCheats()
 
         if not self.isGameOver and not self.isPaused:
-            self.sprites.update()
+            for cloudGroup in self.cloudGroups: cloudGroup.update()
+            self.enemies.update()
+            self.players.update()
+            self.floors.update()
 
             self.enemyCD -= self.__gameSpeed
 
             if random.randint(1, 200) == 1:
-                cloud = Cloud(self)
-                self.clouds.add(cloud)
-                self.sprites.add(cloud)
+                cloudType = random.randint(0, 2)
+                cloud = Cloud(self, cloudType)
+                self.cloudGroups[cloudType].add(cloud)
 
             if self.enemyCD <= 0:
                 self.enemyChance += (1/self.targetFps) * self.enemyChance/8
@@ -252,7 +259,6 @@ class Drakora():
                     self.enemyCD = self.getNextEnemyCD()
 
                     self.enemies.add(enemy)
-                    self.sprites.add(enemy)
 
         self.collideCheck()
 
