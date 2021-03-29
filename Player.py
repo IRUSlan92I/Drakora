@@ -22,6 +22,7 @@ class Player(pygame.sprite.Sprite):
         self.isDownCrouch = False
         self.buttonsJump = (pygame.K_UP, pygame.K_SPACE,)
         self.buttonsCrouch = (pygame.K_DOWN,)
+        self.gameSpeed = 1
 
 
     def crouch(self):
@@ -36,6 +37,8 @@ class Player(pygame.sprite.Sprite):
             self.isCrouching = False
             self.rect = self.rect.inflate(0, 25)
 
+    def updateSpeed(self, newGameSpeed):
+        self.gameSpeed = newGameSpeed
 
     def control(self, event):
         if event.type == pygame.KEYDOWN:
@@ -54,7 +57,7 @@ class Player(pygame.sprite.Sprite):
     def update(self):
         if not self.speed: self.rect.y += 1
 
-        self.speed += 0.17
+        self.speed += 0.09 * self.gameSpeed
         self.rect.y += self.speed
 
         if not self.isDownJump:
@@ -77,9 +80,9 @@ class Player(pygame.sprite.Sprite):
                     self.standup()
 
         if self.isJumping:
-            if self.isDownJump and self.hoverCount < 7:
-                self.speed -= 1 - self.speed/(15+
-                                              self.hoverCount*3)
+            if self.isDownJump and self.hoverCount < 8:
+                self.speed -= (1 - self.speed/(15+
+                                        self.hoverCount*3)) * self.gameSpeed/2
                 self.hoverCount += 1
 
             else:

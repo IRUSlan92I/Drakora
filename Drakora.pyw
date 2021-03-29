@@ -7,7 +7,8 @@ import pygame
 import random
 
 from Player import Player
-from Enemy import Enemy
+from StandingEnemy import StandingEnemy
+from FlyingEnemy import FlyingEnemy
 from Cloud import Cloud
 from Floor import Floor
 
@@ -37,7 +38,7 @@ class Drakora():
         self.__score += score
 
         if self.__score%self.speedUpRate == 0:
-            self.__gameSpeed += 1
+            self.__gameSpeed += self.__score/self.speedUpRate
             self.speedUpLabelCD = self.targetFps
 
 
@@ -57,10 +58,11 @@ class Drakora():
         self.__gameSpeed = 2
 
         self.enemyCount = 0
-        self.enemyCD = self.getNextEnemyCD()
         self.enemyChance = 100.0
 
         self.speedUpLabelCD = 0
+        self.nextEnemyMustBeFlying = False
+        self.enemyCD = self.getNextEnemyCD()
 
 
     def __init__(self):
@@ -144,12 +146,14 @@ class Drakora():
 
 
     def getNextEnemyCD(self):
-        if self.enemyCount <= 5:
+        if self.enemyCount == 0:
             return 1000
         elif self.enemyCount <= 5:
             return 800 - 100*self.enemyCount
         elif self.enemyCount%self.speedUpRate == 0:
             return 1000
+        elif self.nextEnemyMustBeFlying:
+            return 600
         else:
             return 300
 
@@ -166,6 +170,8 @@ class Drakora():
 
 
     def logic(self):
+        self.player.updateSpeed(self.__gameSpeed)
+
         for event in pygame.event.get():
             self.player.control(event)
 
@@ -176,7 +182,7 @@ class Drakora():
                 if event.key in self.buttonsQuit:
                     return False
                 elif event.key in self.buttonsNewGame:
-                    if self.isGameOver: self.newGame()
+                    if self.isGameOver or self.isGodmode: self.newGame()
                 elif event.key in self.buttonsPause:
                     self.isPaused = not self.isPaused
 
@@ -217,9 +223,27 @@ class Drakora():
 
                 if random.randint(1, 150) < self.enemyChance:
                     self.enemyCount += 1
-                    self.enemyCD = self.getNextEnemyCD()
                     self.enemyChance = 1
-                    enemy = Enemy(self)
+
+                    if self.nextEnemyMustBeFlying:
+                        enemy = FlyingEnemy(self)
+                    else:
+                        enemy = StandingEnemy(self)
+
+                    if self.__score < 10:
+                        self.nextEnemyMustBeFlying = False
+
+                    elif self.__score < 20:
+                        self.nextEnemyMustBeFlying = random.randint(1, 100) > 95
+
+                    elif self.__score < 40:
+                        self.nextEnemyMustBeFlying = random.randint(1, 100) > 85
+
+                    else:
+                        self.nextEnemyMustBeFlying = random.randint(1, 100) > 75
+
+                    self.enemyCD = self.getNextEnemyCD()
+
                     self.enemies.add(enemy)
                     self.sprites.add(enemy)
 
