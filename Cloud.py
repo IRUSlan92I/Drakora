@@ -20,11 +20,14 @@ class Cloud(pygame.sprite.Sprite):
                             mainGameClass.getScreenHeight()/2 -
                             random.randint(100,
                                 mainGameClass.getScreenHeight()/2-100))
-        self.speed = random.randint(2, 4)*mainGameClass.getGameSpeed()
+        self.speed = random.randint(1, 3)*mainGameClass.getGameSpeed() / 6
+
+        self.__doubleX = float(self.rect.x)
 
 
     def update(self):
         if (self.rect.x < -self.rect.width):
             self.kill()
 
-        self.rect.x -= self.speed
+        self.__doubleX -= self.speed
+        self.rect.x = self.__doubleX

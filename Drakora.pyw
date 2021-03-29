@@ -67,16 +67,11 @@ class Drakora():
         self.buttonsPause = (pygame.K_p,)
         self.buttonsQuit = (pygame.K_F10,)
         self.buttonsNewGame = (pygame.K_RETURN,)
-        self.buttonsJump = (pygame.K_UP, pygame.K_SPACE,)
-        self.buttonsCrouch = (pygame.K_DOWN,)
 
         self.screenSize = (800, 600)
         self.targetFps = 120
 
         self.floorHeight = 50
-
-        self.isDownJump = False
-        self.isDownCrouch = False
 
         self.floors = pygame.sprite.Group()
         self.enemies = pygame.sprite.Group()
@@ -120,6 +115,7 @@ class Drakora():
     def render(self):
         self.screen.fill((102, 153, 255))
         self.sprites.draw(self.screen)
+        self.floors.draw(self.screen)
 
         self.renderText('%d'%(self.__score),
                         self.fontScore, (255, 255, 255),
@@ -139,8 +135,6 @@ class Drakora():
                             self.fontMessage, (255, 255, 255),
                             tuple(i/2 for i in self.screenSize))
 
-
-
         if self.isGodmode:
             self.renderText('godmode',
                             self.fontGodmode, (255, 255, 255),
@@ -159,6 +153,7 @@ class Drakora():
         else:
             return 300
 
+
     def collideCheck(self):
         if pygame.sprite.spritecollideany(self.player, self.enemies):
             if not self.isGodmode: self.isGameOver = True
@@ -169,60 +164,24 @@ class Drakora():
             self.player.isOnFloor = True
             self.player.rect.y -= 1
 
-        if not self.isDownJump:
-            self.player.hoverCount = 0
-
-        if self.player.isOnFloor:
-            self.player.speed = 0
-
-            if self.isDownJump:
-                self.player.isJumping = True
-
-                if self.player.isCrouching:
-                    self.player.standup()
-
-            elif self.isDownCrouch:
-                if not self.player.isCrouching:
-                    self.player.crouch()
-
-            elif self.player.isCrouching:
-                    self.player.standup()
-
-        if self.player.isJumping:
-            if self.isDownJump and self.player.hoverCount < 7:
-                self.player.speed -= 1 - self.player.speed/(15+
-                                              self.player.hoverCount*3)
-                self.player.hoverCount += 1
-
-            else:
-                self.player.isJumping = False
-
 
     def logic(self):
         for event in pygame.event.get():
+            self.player.control(event)
+
             if event.type == pygame.QUIT:
                 return False
 
             elif event.type == pygame.KEYDOWN:
                 if event.key in self.buttonsQuit:
                     return False
-                elif event.key in self.buttonsCrouch:
-                    self.isDownCrouch = True
-                elif event.key in self.buttonsJump:
-                    self.isDownJump = True
                 elif event.key in self.buttonsNewGame:
                     if self.isGameOver: self.newGame()
                 elif event.key in self.buttonsPause:
                     self.isPaused = not self.isPaused
 
             elif event.type == pygame.KEYUP:
-                if event.key in self.buttonsCrouch:
-                    self.isDownCrouch = False
-                    godmodeCount = 0
-                elif event.key in self.buttonsJump:
-                    self.isDownJump = False
-                    godmodeCount = 0
-                elif event.key == pygame.K_g:
+                if event.key == pygame.K_g:
                     if self.godmodeCount == 0:  self.godmodeCount += 1
                     else:                       self.godmodeCount == 0
                 elif event.key == pygame.K_o:
@@ -240,13 +199,15 @@ class Drakora():
                     if self.godmodeCount == 6:
                         self.godmodeCount == 0
                         self.isGodmode = not self.isGodmode
+                else:
+                    self.godmodeCount = 0
 
         if not self.isGameOver and not self.isPaused:
             self.sprites.update()
 
             self.enemyCD -= self.__gameSpeed
 
-            if random.randint(1, 50) == 1:
+            if random.randint(1, 200) == 1:
                 cloud = Cloud(self)
                 self.clouds.add(cloud)
                 self.sprites.add(cloud)
