@@ -48,6 +48,10 @@ class Drakora():
         for enemy in self.enemies:
             enemy.kill()
 
+        for cloudGroup in self.cloudGroups:
+            for cloud in cloudGroup:
+                cloud.kill()
+
         if self.player: self.player.kill()
 
         self.player = Player()
