@@ -4,6 +4,7 @@ Player entity class
 
 
 import pygame
+import math
 
 
 class Player(pygame.sprite.Sprite):
@@ -57,7 +58,7 @@ class Player(pygame.sprite.Sprite):
     def update(self):
         if not self.speed: self.rect.y += 1
 
-        self.speed += 0.09 * self.gameSpeed
+        self.speed += 0.07 * self.gameSpeed
         self.rect.y += self.speed
 
         if not self.isDownJump:
@@ -80,9 +81,9 @@ class Player(pygame.sprite.Sprite):
                     self.standup()
 
         if self.isJumping:
-            if self.isDownJump and self.hoverCount < 8:
-                self.speed -= (1 - self.speed/(15+
-                                        self.hoverCount*3)) * self.gameSpeed/2
+            maxHoverCount = 30
+            if self.isDownJump and self.hoverCount < maxHoverCount:
+                self.speed -= self.gameSpeed/10 * (math.sin(2*math.pi*self.hoverCount/(2*maxHoverCount)+math.pi/2)+1)/2.5+0.2
                 self.hoverCount += 1
 
             else:
