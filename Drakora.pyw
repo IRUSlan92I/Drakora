@@ -218,11 +218,17 @@ class Drakora():
         if pygame.sprite.spritecollideany(self.player, self.enemies):
             if not self.isGodmode: self.isGameOver = True
 
-        self.player.isOnFloor = False
+        if self.player.isOnFloor:
+            self.player.rect.y += 1
+            if not pygame.sprite.spritecollideany(self.player, self.floors):
+                self.player.isOnFloor = False
+        else:
+            if pygame.sprite.spritecollideany(self.player, self.floors):
+                self.player.isOnFloor = True
 
-        while pygame.sprite.spritecollideany(self.player, self.floors):
-            self.player.isOnFloor = True
-            self.player.rect.y -= 1
+        if self.player.isOnFloor:
+            while pygame.sprite.spritecollideany(self.player, self.floors):
+                self.player.rect.y -= 1
 
 
     def doCheats(self):
