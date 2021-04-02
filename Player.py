@@ -13,15 +13,28 @@ class Player(pygame.sprite.Sprite):
         self.imgDir = os.path.join(os.path.dirname(__file__), 'data')
 
         self.walkImages = (
-            pygame.image.load(os.path.join(self.imgDir, 'player1.png')).convert(),
-            pygame.image.load(os.path.join(self.imgDir, 'player2.png')).convert(),
-            pygame.image.load(os.path.join(self.imgDir, 'player3.png')).convert(),
-            pygame.image.load(os.path.join(self.imgDir, 'player2.png')).convert(),
+            pygame.transform.scale(pygame.image.load(os.path.join(self.imgDir, 'player1.png')).convert(), (64, 98)),
+            pygame.transform.scale(pygame.image.load(os.path.join(self.imgDir, 'player2.png')).convert(), (64, 98)),
+            pygame.transform.scale(pygame.image.load(os.path.join(self.imgDir, 'player3.png')).convert(), (64, 98)),
+            pygame.transform.scale(pygame.image.load(os.path.join(self.imgDir, 'player2.png')).convert(), (64, 98)),
         )
         self.currentWalkImage = 0
 
-        for image in self.walkImages:
-            image.set_colorkey((255,0,255))
+        self.upImages = (
+            pygame.transform.scale(pygame.image.load(os.path.join(self.imgDir, 'playerUp1.png')).convert(), (64, 98)),
+            pygame.transform.scale(pygame.image.load(os.path.join(self.imgDir, 'playerUp2.png')).convert(), (64, 98)),
+        )
+        self.currentUpImage = 0
+
+        self.downImages = (
+            pygame.transform.scale(pygame.image.load(os.path.join(self.imgDir, 'playerDown1.png')).convert(), (64, 98)),
+            pygame.transform.scale(pygame.image.load(os.path.join(self.imgDir, 'playerDown2.png')).convert(), (64, 98)),
+        )
+        self.currentDownImage = 0
+
+        for array in (self.walkImages, self.upImages, self.downImages):
+            for image in array:
+                image.set_colorkey((255,0,255))
 
         pygame.sprite.Sprite.__init__(self)
         self.image = self.walkImages[self.currentWalkImage]
@@ -72,14 +85,6 @@ class Player(pygame.sprite.Sprite):
 
 
     def update(self):
-        self.updateCount += 1
-        if self.updateCount == 15:
-            self.currentWalkImage += 1
-            if self.currentWalkImage >= len(self.walkImages):
-                self.currentWalkImage = 0
-            self.image = self.walkImages[self.currentWalkImage]
-            self.updateCount = 0
-
         if not self.speed: self.rect.y += 1
 
         if not self.isDownJump:
@@ -102,7 +107,6 @@ class Player(pygame.sprite.Sprite):
                     self.standup()
 
         if self.isJumping:
-#            maxHoverCount = 30
             if self.gameSpeed <= 2:     maxHoverCount = 30
             elif self.gameSpeed <= 4:   maxHoverCount = 23
             elif self.gameSpeed <= 8:   maxHoverCount = 16
@@ -120,3 +124,22 @@ class Player(pygame.sprite.Sprite):
             self.speed += 0.07 * self.gameSpeed
 
         self.rect.y += self.speed
+
+        self.updateCount += 1
+        if self.updateCount == 15:
+            if self.isOnFloor:
+                self.currentWalkImage += 1
+                if self.currentWalkImage >= len(self.walkImages):
+                    self.currentWalkImage = 0
+                self.image = self.walkImages[self.currentWalkImage]
+            elif self.isJumping:
+                self.currentUpImage += 1
+                if self.currentUpImage >= len(self.upImages):
+                    self.currentUpImage = 0
+                self.image = self.upImages[self.currentUpImage]
+            else:
+                self.currentDownImage += 1
+                if self.currentDownImage >= len(self.downImages):
+                    self.currentDownImage = 0
+                self.image = self.downImages[self.currentDownImage]
+            self.updateCount = 0
