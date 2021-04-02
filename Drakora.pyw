@@ -36,11 +36,23 @@ class Drakora():
         return self.floorHeight
 
 
+    def speedUp(self):
+        self.__gameSpeed *= 2
+
+
+    def speedDown(self):
+        if self.__gameSpeed > 2: self.__gameSpeed /= 2
+
+
+    def speedReset(self):
+        self.__gameSpeed = 2
+
+
     def addScore(self, score):
         self.__score += score
 
         if self.__score%self.speedUpRate == 0:
-            self.__gameSpeed += self.__score/self.speedUpRate
+            self.speedUp()
             self.speedUpLabelCD = self.targetFps
 
 
@@ -61,7 +73,7 @@ class Drakora():
         self.isGameOver = False
         self.isPaused = False
 
-        self.__gameSpeed = 2
+        self.speedReset()
 
         self.enemyCount = 0
         self.enemyChance = 100.0
@@ -69,6 +81,10 @@ class Drakora():
         self.speedUpLabelCD = 0
         self.nextEnemyMustBeFlying = False
         self.enemyCD = self.getNextEnemyCD()
+
+        self.speedUpCheatLabelCD = 0
+        self.speedDownCheatLabelCD = 0
+        self.speedResetCheatLabelCD = 0
 
 
     def __init__(self):
@@ -164,6 +180,24 @@ class Drakora():
                             self.fontGodmode, (255, 255, 255),
                             (self.getScreenWidth()/2,40))
 
+        if self.speedUpCheatLabelCD:
+            self.speedUpCheatLabelCD -= 1
+            self.renderText('speed up',
+                            self.fontGodmode, (255, 255, 255),
+                            (self.getScreenWidth()/2,60))
+
+        if self.speedDownCheatLabelCD:
+            self.speedDownCheatLabelCD -= 1
+            self.renderText('speed down',
+                            self.fontGodmode, (255, 255, 255),
+                            (self.getScreenWidth()/2,60))
+
+        if self.speedResetCheatLabelCD:
+            self.speedResetCheatLabelCD -= 1
+            self.renderText('speed reset',
+                            self.fontGodmode, (255, 255, 255),
+                            (self.getScreenWidth()/2,60))
+
         pygame.display.flip()
 
 
@@ -194,8 +228,19 @@ class Drakora():
     def doCheats(self):
         if self.isPressedKeysUpdated:
             pressedKeysStr = ''.join(self.pressedKeys)
+
             if pressedKeysStr.endswith('godmode'):
                 self.isGodmode = not self.isGodmode
+            elif pressedKeysStr.endswith('speedup'):
+                self.speedUp()
+                self.speedUpCheatLabelCD = 60
+            elif pressedKeysStr.endswith('speeddown'):
+                self.speedDown()
+                self.speedDownCheatLabelCD = 60
+            elif pressedKeysStr.endswith('speedreset'):
+                self.speedReset()
+                self.speedResetCheatLabelCD = 60
+
             self.isPressedKeysUpdated = False
 
 
