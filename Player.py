@@ -32,7 +32,13 @@ class Player(pygame.sprite.Sprite):
         )
         self.currentDownImage = 0
 
-        for array in (self.walkImages, self.upImages, self.downImages):
+        self.crouchImages = (
+            pygame.transform.scale(pygame.image.load(os.path.join(self.imgDir, 'playerCrouch1.png')).convert(), (64, 64)),
+            pygame.transform.scale(pygame.image.load(os.path.join(self.imgDir, 'playerCrouch2.png')).convert(), (64, 64)),
+        )
+        self.currentCrouchImage = 0
+
+        for array in (self.walkImages, self.upImages, self.downImages, self.crouchImages):
             for image in array:
                 image.set_colorkey((255,0,255))
 
@@ -58,14 +64,14 @@ class Player(pygame.sprite.Sprite):
     def crouch(self):
         if not self.isCrouching:
             self.isCrouching = True
-            self.rect = self.rect.inflate(0, -25)
+            self.rect = self.rect.inflate(0, -32)
             # self.image.set_clip((50, 50))
 
 
     def standup(self):
         if self.isCrouching:
             self.isCrouching = False
-            self.rect = self.rect.inflate(0, 25)
+            self.rect = self.rect.inflate(0, 32)
 
     def updateSpeed(self, newGameSpeed):
         self.gameSpeed = newGameSpeed
@@ -128,10 +134,16 @@ class Player(pygame.sprite.Sprite):
         self.updateCount += 1
         if self.updateCount == 15:
             if self.isOnFloor:
-                self.currentWalkImage += 1
-                if self.currentWalkImage >= len(self.walkImages):
-                    self.currentWalkImage = 0
-                self.image = self.walkImages[self.currentWalkImage]
+                if self.isCrouching:
+                    self.currentCrouchImage += 1
+                    if self.currentCrouchImage >= len(self.crouchImages):
+                        self.currentCrouchImage = 0
+                    self.image = self.crouchImages[self.currentCrouchImage]
+                else:
+                    self.currentWalkImage += 1
+                    if self.currentWalkImage >= len(self.walkImages):
+                        self.currentWalkImage = 0
+                    self.image = self.walkImages[self.currentWalkImage]
             elif self.isJumping:
                 self.currentUpImage += 1
                 if self.currentUpImage >= len(self.upImages):
