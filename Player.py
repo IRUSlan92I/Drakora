@@ -5,13 +5,28 @@ Player entity class
 
 import pygame
 import math
+import os
 
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
+        self.imgDir = os.path.join(os.path.dirname(__file__), 'data')
+
+        self.walkImages = (
+            pygame.image.load(os.path.join(self.imgDir, 'player1.png')).convert(),
+            pygame.image.load(os.path.join(self.imgDir, 'player2.png')).convert(),
+            pygame.image.load(os.path.join(self.imgDir, 'player3.png')).convert(),
+            pygame.image.load(os.path.join(self.imgDir, 'player2.png')).convert(),
+        )
+        self.currentWalkImage = 0
+
+        for image in self.walkImages:
+            image.set_colorkey((255,0,255))
+
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((50, 75))
-        self.image.fill((153, 151, 0))
+        self.image = self.walkImages[self.currentWalkImage]
+        # self.image = pygame.Surface((50, 75))
+        # self.image.fill((153, 151, 0))
         self.rect = self.image.get_rect()
         self.rect.center = (100, 400)
         self.speed = 0.0
@@ -24,6 +39,7 @@ class Player(pygame.sprite.Sprite):
         self.buttonsJump = (pygame.K_UP, pygame.K_SPACE,)
         self.buttonsCrouch = (pygame.K_DOWN,)
         self.gameSpeed = 1
+        self.updateCount = 0
 
 
     def crouch(self):
@@ -56,6 +72,14 @@ class Player(pygame.sprite.Sprite):
 
 
     def update(self):
+        self.updateCount += 1
+        if self.updateCount == 15:
+            self.currentWalkImage += 1
+            if self.currentWalkImage >= len(self.walkImages):
+                self.currentWalkImage = 0
+            self.image = self.walkImages[self.currentWalkImage]
+            self.updateCount = 0
+
         if not self.speed: self.rect.y += 1
 
         if not self.isDownJump:
