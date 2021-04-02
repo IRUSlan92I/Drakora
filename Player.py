@@ -130,7 +130,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.y += self.speed
 
         self.updateCount += 1
-        if self.updateCount == 15:
+        if self.updateCount == 22 - math.log2(self.gameSpeed) * 2:
             if self.isOnFloor:
                 if self.isCrouching:
                     self.currentCrouchImage += 1
