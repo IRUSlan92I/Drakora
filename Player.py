@@ -44,8 +44,7 @@ class Player(pygame.sprite.Sprite):
 
         pygame.sprite.Sprite.__init__(self)
         self.image = self.walkImages[self.currentWalkImage]
-        # self.image = pygame.Surface((50, 75))
-        # self.image.fill((153, 151, 0))
+
         self.rect = self.image.get_rect()
         self.rect.center = (100, 400)
         self.speed = 0.0
@@ -65,7 +64,6 @@ class Player(pygame.sprite.Sprite):
         if not self.isCrouching:
             self.isCrouching = True
             self.rect = self.rect.inflate(0, -32)
-            # self.image.set_clip((50, 50))
 
 
     def standup(self):
