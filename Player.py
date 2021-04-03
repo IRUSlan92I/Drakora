@@ -12,29 +12,33 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         self.imgDir = os.path.join(os.path.dirname(__file__), 'data')
 
+        playerImage = pygame.image.load(os.path.join(self.imgDir, 'player.png')).convert()
+
         self.walkImages = (
-            pygame.transform.scale(pygame.image.load(os.path.join(self.imgDir, 'player1.png')).convert(), (64, 98)),
-            pygame.transform.scale(pygame.image.load(os.path.join(self.imgDir, 'player2.png')).convert(), (64, 98)),
-            pygame.transform.scale(pygame.image.load(os.path.join(self.imgDir, 'player3.png')).convert(), (64, 98)),
-            pygame.transform.scale(pygame.image.load(os.path.join(self.imgDir, 'player2.png')).convert(), (64, 98)),
+            pygame.transform.scale(playerImage.subsurface((0, 0, 16, 24)), (64, 98)),
+            pygame.transform.scale(playerImage.subsurface((16, 0, 16, 24)), (64, 98)),
+            pygame.transform.scale(playerImage.subsurface((32, 0, 16, 24)), (64, 98)),
+            pygame.transform.scale(playerImage.subsurface((16, 0, 16, 24)), (64, 98)),
         )
         self.currentWalkImage = 0
 
         self.upImages = (
-            pygame.transform.scale(pygame.image.load(os.path.join(self.imgDir, 'playerUp1.png')).convert(), (64, 98)),
-            pygame.transform.scale(pygame.image.load(os.path.join(self.imgDir, 'playerUp2.png')).convert(), (64, 98)),
+            pygame.transform.scale(playerImage.subsurface((0, 24, 16, 24)), (64, 98)),
+            pygame.transform.scale(playerImage.subsurface((16, 24, 16, 24)), (64, 98)),
+            pygame.transform.scale(playerImage.subsurface((32, 24, 16, 24)), (64, 98)),
         )
         self.currentUpImage = 0
 
         self.downImages = (
-            pygame.transform.scale(pygame.image.load(os.path.join(self.imgDir, 'playerDown1.png')).convert(), (64, 98)),
-            pygame.transform.scale(pygame.image.load(os.path.join(self.imgDir, 'playerDown2.png')).convert(), (64, 98)),
+            pygame.transform.scale(playerImage.subsurface((0, 48, 16, 24)), (64, 98)),
+            pygame.transform.scale(playerImage.subsurface((16, 48, 16, 24)), (64, 98)),
+            pygame.transform.scale(playerImage.subsurface((32, 48, 16, 24)), (64, 98)),
         )
         self.currentDownImage = 0
 
         self.crouchImages = (
-            pygame.transform.scale(pygame.image.load(os.path.join(self.imgDir, 'playerCrouch1.png')).convert(), (64, 64)),
-            pygame.transform.scale(pygame.image.load(os.path.join(self.imgDir, 'playerCrouch2.png')).convert(), (64, 64)),
+            pygame.transform.scale(playerImage.subsurface((0, 72, 16, 16)), (64, 64)),
+            pygame.transform.scale(playerImage.subsurface((16, 72, 16, 16)), (64, 64)),
         )
         self.currentCrouchImage = 0
 
