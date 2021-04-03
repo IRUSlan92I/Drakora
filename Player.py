@@ -9,45 +9,46 @@ import os
 
 
 class Player(pygame.sprite.Sprite):
+    imgDir = os.path.join(os.path.dirname(__file__), 'data')
+    playerImage = pygame.image.load(os.path.join(imgDir, 'player.png'))#.convert()
+    walkImages = (
+        pygame.transform.scale(playerImage.subsurface((0, 0, 16, 24)), (64, 98)),
+        pygame.transform.scale(playerImage.subsurface((16, 0, 16, 24)), (64, 98)),
+        pygame.transform.scale(playerImage.subsurface((32, 0, 16, 24)), (64, 98)),
+        pygame.transform.scale(playerImage.subsurface((16, 0, 16, 24)), (64, 98)),
+    )
+
+    upImages = (
+        pygame.transform.scale(playerImage.subsurface((0, 24, 16, 24)), (64, 98)),
+        pygame.transform.scale(playerImage.subsurface((16, 24, 16, 24)), (64, 98)),
+        pygame.transform.scale(playerImage.subsurface((32, 24, 16, 24)), (64, 98)),
+    )
+
+    downImages = (
+        pygame.transform.scale(playerImage.subsurface((0, 48, 16, 24)), (64, 98)),
+        pygame.transform.scale(playerImage.subsurface((16, 48, 16, 24)), (64, 98)),
+        pygame.transform.scale(playerImage.subsurface((32, 48, 16, 24)), (64, 98)),
+    )
+
+    crouchImages = (
+        pygame.transform.scale(playerImage.subsurface((0, 72, 16, 16)), (64, 64)),
+        pygame.transform.scale(playerImage.subsurface((16, 72, 16, 16)), (64, 64)),
+    )
+
+
+    for array in (walkImages, upImages, downImages, crouchImages):
+        for image in array:
+            image.set_colorkey((255,0,255))
+
     def __init__(self):
-        self.imgDir = os.path.join(os.path.dirname(__file__), 'data')
+        pygame.sprite.Sprite.__init__(self)
 
-        playerImage = pygame.image.load(os.path.join(self.imgDir, 'player.png')).convert()
-
-        self.walkImages = (
-            pygame.transform.scale(playerImage.subsurface((0, 0, 16, 24)), (64, 98)),
-            pygame.transform.scale(playerImage.subsurface((16, 0, 16, 24)), (64, 98)),
-            pygame.transform.scale(playerImage.subsurface((32, 0, 16, 24)), (64, 98)),
-            pygame.transform.scale(playerImage.subsurface((16, 0, 16, 24)), (64, 98)),
-        )
         self.currentWalkImage = 0
-
-        self.upImages = (
-            pygame.transform.scale(playerImage.subsurface((0, 24, 16, 24)), (64, 98)),
-            pygame.transform.scale(playerImage.subsurface((16, 24, 16, 24)), (64, 98)),
-            pygame.transform.scale(playerImage.subsurface((32, 24, 16, 24)), (64, 98)),
-        )
         self.currentUpImage = 0
-
-        self.downImages = (
-            pygame.transform.scale(playerImage.subsurface((0, 48, 16, 24)), (64, 98)),
-            pygame.transform.scale(playerImage.subsurface((16, 48, 16, 24)), (64, 98)),
-            pygame.transform.scale(playerImage.subsurface((32, 48, 16, 24)), (64, 98)),
-        )
         self.currentDownImage = 0
-
-        self.crouchImages = (
-            pygame.transform.scale(playerImage.subsurface((0, 72, 16, 16)), (64, 64)),
-            pygame.transform.scale(playerImage.subsurface((16, 72, 16, 16)), (64, 64)),
-        )
         self.currentCrouchImage = 0
 
-        for array in (self.walkImages, self.upImages, self.downImages, self.crouchImages):
-            for image in array:
-                image.set_colorkey((255,0,255))
-
-        pygame.sprite.Sprite.__init__(self)
-        self.image = self.walkImages[self.currentWalkImage]
+        self.image = Player.downImages[self.currentDownImage]
 
         self.rect = self.image.get_rect()
         self.rect.center = (100, 400)
@@ -138,22 +139,22 @@ class Player(pygame.sprite.Sprite):
             if self.isOnFloor:
                 if self.isCrouching:
                     self.currentCrouchImage += 1
-                    if self.currentCrouchImage >= len(self.crouchImages):
+                    if self.currentCrouchImage >= len(Player.crouchImages):
                         self.currentCrouchImage = 0
-                    self.image = self.crouchImages[self.currentCrouchImage]
+                    self.image = Player.crouchImages[self.currentCrouchImage]
                 else:
                     self.currentWalkImage += 1
-                    if self.currentWalkImage >= len(self.walkImages):
+                    if self.currentWalkImage >= len(Player.walkImages):
                         self.currentWalkImage = 0
-                    self.image = self.walkImages[self.currentWalkImage]
+                    self.image = Player.walkImages[self.currentWalkImage]
             elif self.isJumping:
                 self.currentUpImage += 1
-                if self.currentUpImage >= len(self.upImages):
+                if self.currentUpImage >= len(Player.upImages):
                     self.currentUpImage = 0
-                self.image = self.upImages[self.currentUpImage]
+                self.image = Player.upImages[self.currentUpImage]
             else:
                 self.currentDownImage += 1
-                if self.currentDownImage >= len(self.downImages):
+                if self.currentDownImage >= len(Player.downImages):
                     self.currentDownImage = 0
-                self.image = self.downImages[self.currentDownImage]
+                self.image = Player.downImages[self.currentDownImage]
             self.updateCount = 0
