@@ -118,6 +118,7 @@ class Drakora():
 
         self.godmodeCount = 0
         self.isGodmode = False
+        self.drawBoxes = False
 
 
         font = pygame.font.match_font('liberation mono')
@@ -157,6 +158,14 @@ class Drakora():
         self.enemies.draw(self.screen)
         self.players.draw(self.screen)
         self.floors.draw(self.screen)
+
+        if self.drawBoxes:
+            for player in self.players:
+                pygame.draw.rect(self.screen, (255, 0, 0), player.rect, 1)
+            for enemy in self.enemies:
+                pygame.draw.rect(self.screen, (255, 0, 0), enemy.rect, 1)
+            for floor in self.floors:
+                pygame.draw.rect(self.screen, (255, 0, 0), floor.rect, 1)
 
         self.renderText('%d'%(self.__score),
                         self.fontScore, (255, 255, 255),
@@ -247,6 +256,8 @@ class Drakora():
             elif pressedKeysStr.endswith('speedreset'):
                 self.speedReset()
                 self.speedResetCheatLabelCD = 60
+            elif pressedKeysStr.endswith('drawboxes'):
+                self.drawBoxes = not self.drawBoxes
 
             self.isPressedKeysUpdated = False
 
