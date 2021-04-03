@@ -80,6 +80,7 @@ class Drakora():
 
         self.speedUpLabelCD = 0
         self.nextEnemyMustBeFlying = False
+
         self.enemyCD = self.getNextEnemyCD()
 
         self.speedUpCheatLabelCD = 0
