@@ -94,7 +94,7 @@ class Drakora():
         self.speedUpCheatLabelCD = 0
         self.speedDownCheatLabelCD = 0
         self.speedResetCheatLabelCD = 0
-        self.backgroundgOffset = [0, int(self.fourScreenWidths)]
+        self.backgroundgOffset = [0, self.fourScreenWidths]
 
 
     def __init__(self):
