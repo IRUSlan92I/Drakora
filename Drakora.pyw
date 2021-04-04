@@ -13,6 +13,7 @@ from StandingEnemy import StandingEnemy
 from FlyingEnemy import FlyingEnemy
 from Cloud import Cloud
 from Floor import Floor
+from EndSceen import EndSceen
 
 
 class Drakora():
@@ -55,6 +56,13 @@ class Drakora():
             self.speedUp()
             self.speedUpLabelCD = self.targetFps
 
+    def getFont(self):
+        return self.font
+
+
+    def getTime(self):
+        return self.time
+
 
     def newGame(self):
         for enemy in self.enemies:
@@ -86,6 +94,9 @@ class Drakora():
         self.speedUpCheatLabelCD = 0
         self.speedDownCheatLabelCD = 0
         self.speedResetCheatLabelCD = 0
+
+        self.time = 0
+        self.endSceen.newEndScreen()
 
 
     def __init__(self):
@@ -121,10 +132,10 @@ class Drakora():
         self.drawBoxes = False
 
 
-        font = pygame.font.match_font('liberation mono')
-        self.fontScore = pygame.font.Font(font, 32)
-        self.fontMessage = pygame.font.Font(font, 56)
-        self.fontGodmode = pygame.font.Font(font, 12)
+        self.font = pygame.font.match_font('liberation mono')
+        self.fontScore = pygame.font.Font(self.font, 32)
+        self.fontMessage = pygame.font.Font(self.font, 56)
+        self.fontGodmode = pygame.font.Font(self.font, 12)
 
         self.charKeys = {
             pygame.K_a:'a', pygame.K_b:'b', pygame.K_c:'c', pygame.K_d:'d',
@@ -137,6 +148,8 @@ class Drakora():
         }
         self.pressedKeys = deque(maxlen=10)
         self.isPressedKeysUpdated = True
+
+        self.endSceen = EndSceen(self)
 
         self.newGame()
 
@@ -167,23 +180,22 @@ class Drakora():
             for floor in self.floors:
                 pygame.draw.rect(self.screen, (255, 0, 0), floor.rect, 1)
 
-        self.renderText('%d'%(self.__score),
-                        self.fontScore, (255, 255, 255),
-                         (self.getScreenWidth()/2,20))
-
         if self.isGameOver:
-            self.renderText('GAME OVER',
-                            self.fontMessage, (255, 255, 255),
-                            tuple(i/2 for i in self.screenSize))
-        elif self.isPaused:
-            self.renderText('PAUSED',
-                            self.fontMessage, (255, 255, 255),
-                            tuple(i/2 for i in self.screenSize))
-        elif self.speedUpLabelCD > 0:
-            self.speedUpLabelCD -= 1
-            self.renderText('SPEED UP',
-                            self.fontMessage, (255, 255, 255),
-                            tuple(i/2 for i in self.screenSize))
+            self.endSceen.render();
+        else:
+            self.renderText('%d'%(self.__score),
+                            self.fontScore, (255, 255, 255),
+                             (self.getScreenWidth()/2,20))
+
+            if self.isPaused:
+                self.renderText('PAUSED',
+                                self.fontMessage, (255, 255, 255),
+                                tuple(i/2 for i in self.screenSize))
+            elif self.speedUpLabelCD > 0:
+                self.speedUpLabelCD -= 1
+                self.renderText('SPEED UP',
+                                self.fontMessage, (255, 255, 255),
+                                tuple(i/2 for i in self.screenSize))
 
         if self.isGodmode:
             self.renderText('godmode',
@@ -267,6 +279,7 @@ class Drakora():
 
         for event in pygame.event.get():
             self.player.control(event)
+            self.endSceen.control(event)
 
             if event.type == pygame.QUIT:
                 return False
@@ -275,7 +288,7 @@ class Drakora():
                 if event.key in self.buttonsQuit:
                     return False
                 elif event.key in self.buttonsNewGame:
-                    if self.isGameOver or self.isGodmode: self.newGame()
+                    if self.isGodmode: self.newGame()
                 elif event.key in self.buttonsPause:
                     self.isPaused = not self.isPaused
 
@@ -287,6 +300,8 @@ class Drakora():
         self.doCheats()
 
         if not self.isGameOver and not self.isPaused:
+            self.time += 1/self.targetFps
+
             for cloudGroup in self.cloudGroups: cloudGroup.update()
             self.enemies.update()
             self.players.update()
