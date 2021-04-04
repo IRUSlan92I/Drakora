@@ -5,6 +5,7 @@ Main game class
 
 import pygame
 import random
+import os
 
 from collections import deque
 
@@ -16,6 +17,13 @@ from Floor import Floor
 
 
 class Drakora():
+    imgDir = os.path.join(os.path.dirname(__file__), 'data')
+    backgroundImage = pygame.image.load(os.path.join(imgDir, 'background.png'))#.convert()
+    backgroundImages = (
+        pygame.transform.scale(backgroundImage.subsurface((0, 0, 800, 150)), (3200, 600)),
+        pygame.transform.scale(backgroundImage.subsurface((0, 150, 800, 150)), (3200, 600)),
+    )
+
     def getGameSpeed(self):
         return self.__gameSpeed
 
@@ -86,12 +94,14 @@ class Drakora():
         self.speedUpCheatLabelCD = 0
         self.speedDownCheatLabelCD = 0
         self.speedResetCheatLabelCD = 0
+        self.backgroundgOffset = [0, int(self.fourScreenWidths)]
 
 
     def __init__(self):
         random.seed()
         pygame.init()
         self.screenSize = (800, 600)
+        self.fourScreenWidths = self.screenSize[0]*4
         self.screen = pygame.display.set_mode(self.screenSize)
         pygame.display.set_caption('Drakora')
         self.clock = pygame.time.Clock()
@@ -102,7 +112,7 @@ class Drakora():
 
         self.targetFps = 120
 
-        self.floorHeight = 50
+        self.floorHeight = 64
 
         self.players = pygame.sprite.Group()
         self.floors = pygame.sprite.Group()
@@ -119,7 +129,6 @@ class Drakora():
         self.godmodeCount = 0
         self.isGodmode = False
         self.drawBoxes = False
-
 
         font = pygame.font.match_font('liberation mono')
         self.fontScore = pygame.font.Font(font, 32)
@@ -153,7 +162,10 @@ class Drakora():
 
 
     def render(self):
-        self.screen.fill((102, 153, 255))
+        # self.screen.fill((102, 153, 255))
+        self.screen.blit(self.backgroundImages[0], (0-self.backgroundgOffset[0], 0, self.fourScreenWidths-self.backgroundgOffset[0], 600))
+        self.screen.blit(self.backgroundImages[1], (0-self.backgroundgOffset[1], 0, self.fourScreenWidths-self.backgroundgOffset[1], 600))
+
         for cloudGroup in self.cloudGroups: cloudGroup.draw(self.screen)
         self.enemies.draw(self.screen)
         self.players.draw(self.screen)
@@ -287,6 +299,14 @@ class Drakora():
         self.doCheats()
 
         if not self.isGameOver and not self.isPaused:
+            self.backgroundgOffset[0] += self.__gameSpeed
+            self.backgroundgOffset[1] += self.__gameSpeed
+
+            if self.backgroundgOffset[0] > self.fourScreenWidths*2:
+                self.backgroundgOffset[0] -= self.fourScreenWidths*2
+            if self.backgroundgOffset[1] > self.fourScreenWidths*2:
+                self.backgroundgOffset[1] -= self.fourScreenWidths*2
+
             for cloudGroup in self.cloudGroups: cloudGroup.update()
             self.enemies.update()
             self.players.update()
