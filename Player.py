@@ -34,11 +34,11 @@ class Player(pygame.sprite.Sprite):
         pygame.transform.scale(playerImage.subsurface((0, 72, 16, 16)), (64, 64)),
         pygame.transform.scale(playerImage.subsurface((16, 72, 16, 16)), (64, 64)),
     )
-
-
+    
     for array in (walkImages, upImages, downImages, crouchImages):
         for image in array:
             image.set_colorkey((255,0,255))
+
 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)

@@ -23,8 +23,6 @@ class Cloud(pygame.sprite.Sprite):
                                 mainGameClass.getScreenHeight()/2-100)+50*(2-cloudType))
         self.speed = cloudType*mainGameClass.getGameSpeed() / 6
 
-
-
         self.__doubleX = float(self.rect.x)
 
 

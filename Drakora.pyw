@@ -5,9 +5,11 @@ Main game class
 
 import pygame
 import random
+import os
 
 from collections import deque
 
+from Background import Background
 from Player import Player
 from StandingEnemy import StandingEnemy
 from FlyingEnemy import FlyingEnemy
@@ -57,6 +59,8 @@ class Drakora():
 
 
     def newGame(self):
+        self.background = Background(self)
+
         for enemy in self.enemies:
             enemy.kill()
 
@@ -102,7 +106,7 @@ class Drakora():
 
         self.targetFps = 120
 
-        self.floorHeight = 50
+        self.floorHeight = 64
 
         self.players = pygame.sprite.Group()
         self.floors = pygame.sprite.Group()
@@ -119,7 +123,6 @@ class Drakora():
         self.godmodeCount = 0
         self.isGodmode = False
         self.drawBoxes = False
-
 
         font = pygame.font.match_font('liberation mono')
         self.fontScore = pygame.font.Font(font, 32)
@@ -153,7 +156,8 @@ class Drakora():
 
 
     def render(self):
-        self.screen.fill((102, 153, 255))
+        # self.screen.fill((102, 153, 255))
+        self.background.draw(self.screen)
         for cloudGroup in self.cloudGroups: cloudGroup.draw(self.screen)
         self.enemies.draw(self.screen)
         self.players.draw(self.screen)
@@ -287,6 +291,7 @@ class Drakora():
         self.doCheats()
 
         if not self.isGameOver and not self.isPaused:
+            self.background.update()
             for cloudGroup in self.cloudGroups: cloudGroup.update()
             self.enemies.update()
             self.players.update()
