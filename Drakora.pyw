@@ -180,7 +180,6 @@ class Drakora():
             for player in self.players:
                 for collision in self.player.getCollisionBoxes():
                     pygame.draw.rect(self.screen, (255, 0, 0), collision.rect, 1)
-                # pygame.draw.rect(self.screen, (255, 0, 0), player.rect, 1)
             for enemy in self.enemies:
                 pygame.draw.rect(self.screen, (255, 0, 0), enemy.rect, 1)
             for floor in self.floors:
@@ -260,7 +259,6 @@ class Drakora():
 
 
     def doCheats(self):
-        self.drawBoxes = True
         if self.isPressedKeysUpdated:
             pressedKeysStr = ''.join(self.pressedKeys)
 
