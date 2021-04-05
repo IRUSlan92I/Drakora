@@ -35,8 +35,7 @@ class Player(pygame.sprite.Sprite):
         pygame.transform.scale(playerImage.subsurface((0, 72, 16, 16)), (64, 64)),
         pygame.transform.scale(playerImage.subsurface((16, 72, 16, 16)), (64, 64)),
     )
-
-
+    
     for array in (walkImages, upImages, downImages, crouchImages):
         for image in array:
             image.set_colorkey((255,0,255))
@@ -76,11 +75,6 @@ class Player(pygame.sprite.Sprite):
         self.collisionBoxes.append(collision)
         collision = CollisionBox(0, 35, 25, 40, self.rect.center)
         self.collisionBoxes.append(collision)
-        # self.collisionBoxes.append(self)
-        # collision = pygame.sprite.Sprite()
-        # collision.rect = pygame.Rect(0, 0, 25, 80)
-        # collision.rect.center = self.rect.center
-        # self.collisionBoxes.append(collision)
 
 
     def crouch(self):
