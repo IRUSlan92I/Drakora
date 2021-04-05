@@ -16,26 +16,30 @@ class Player(pygame.sprite.Sprite):
         pygame.transform.scale(playerImage.subsurface((0, 0, 16, 24)), (64, 98)),
         pygame.transform.scale(playerImage.subsurface((16, 0, 16, 24)), (64, 98)),
         pygame.transform.scale(playerImage.subsurface((32, 0, 16, 24)), (64, 98)),
-        pygame.transform.scale(playerImage.subsurface((16, 0, 16, 24)), (64, 98)),
+        pygame.transform.scale(playerImage.subsurface((48, 0, 16, 24)), (64, 98)),
     )
 
     upImages = (
         pygame.transform.scale(playerImage.subsurface((0, 24, 16, 24)), (64, 98)),
         pygame.transform.scale(playerImage.subsurface((16, 24, 16, 24)), (64, 98)),
         pygame.transform.scale(playerImage.subsurface((32, 24, 16, 24)), (64, 98)),
+        pygame.transform.scale(playerImage.subsurface((48, 24, 16, 24)), (64, 98)),
     )
 
     downImages = (
         pygame.transform.scale(playerImage.subsurface((0, 48, 16, 24)), (64, 98)),
         pygame.transform.scale(playerImage.subsurface((16, 48, 16, 24)), (64, 98)),
         pygame.transform.scale(playerImage.subsurface((32, 48, 16, 24)), (64, 98)),
+        pygame.transform.scale(playerImage.subsurface((48, 48, 16, 24)), (64, 98)),
     )
 
     crouchImages = (
         pygame.transform.scale(playerImage.subsurface((0, 72, 16, 16)), (64, 64)),
         pygame.transform.scale(playerImage.subsurface((16, 72, 16, 16)), (64, 64)),
+        pygame.transform.scale(playerImage.subsurface((32, 72, 16, 16)), (64, 64)),
+        pygame.transform.scale(playerImage.subsurface((48, 72, 16, 16)), (64, 64)),
     )
-    
+
     for array in (walkImages, upImages, downImages, crouchImages):
         for image in array:
             image.set_colorkey((255,0,255))
