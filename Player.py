@@ -6,6 +6,7 @@ Player entity class
 import pygame
 import math
 import os
+from CollisionBox import CollisionBox
 
 
 class Player(pygame.sprite.Sprite):
@@ -40,6 +41,9 @@ class Player(pygame.sprite.Sprite):
         for image in array:
             image.set_colorkey((255,0,255))
 
+    def getCollisionBoxes(self):
+        return self.collisionBoxes
+
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
 
@@ -64,17 +68,37 @@ class Player(pygame.sprite.Sprite):
         self.gameSpeed = 1
         self.updateCount = 0
 
+        self.collisionBoxes = []
+
+        collision = CollisionBox(0, 20, 60, 20, self.rect.center)
+        self.collisionBoxes.append(collision)
+        collision = CollisionBox(-10, 5, 30, 20, self.rect.center)
+        self.collisionBoxes.append(collision)
+        collision = CollisionBox(0, 35, 25, 40, self.rect.center)
+        self.collisionBoxes.append(collision)
+        # self.collisionBoxes.append(self)
+        # collision = pygame.sprite.Sprite()
+        # collision.rect = pygame.Rect(0, 0, 25, 80)
+        # collision.rect.center = self.rect.center
+        # self.collisionBoxes.append(collision)
+
 
     def crouch(self):
         if not self.isCrouching:
             self.isCrouching = True
             self.rect = self.rect.inflate(0, -32)
 
+            for i in self.collisionBoxes:
+                i.rect = i.inflate(0, -32)
+
 
     def standup(self):
         if self.isCrouching:
             self.isCrouching = False
             self.rect = self.rect.inflate(0, 32)
+
+            for i in self.collisionBoxes:
+                i.rect = i.inflate(0, 32)
 
     def updateSpeed(self, newGameSpeed):
         self.gameSpeed = newGameSpeed
@@ -133,6 +157,9 @@ class Player(pygame.sprite.Sprite):
             self.speed += 0.07 * self.gameSpeed
 
         self.rect.y += self.speed
+
+        for i in self.collisionBoxes:
+            i.setY(self.rect.y)
 
         if self.updateCount >= 22 - math.log2(self.gameSpeed) * 2:
             if self.isOnFloor:

@@ -3,3 +3,4 @@ Coolguy 1 10.75
 Wow 74 185.72
 Cheater 1000 0.01
 New-Kolya 2 15.20
+1 1 10.02

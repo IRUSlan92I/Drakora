@@ -174,7 +174,9 @@ class Drakora():
 
         if self.drawBoxes:
             for player in self.players:
-                pygame.draw.rect(self.screen, (255, 0, 0), player.rect, 1)
+                for collision in self.player.getCollisionBoxes():
+                    pygame.draw.rect(self.screen, (255, 0, 0), collision.rect, 1)
+                # pygame.draw.rect(self.screen, (255, 0, 0), player.rect, 1)
             for enemy in self.enemies:
                 pygame.draw.rect(self.screen, (255, 0, 0), enemy.rect, 1)
             for floor in self.floors:
@@ -237,7 +239,7 @@ class Drakora():
 
 
     def collideCheck(self):
-        if pygame.sprite.spritecollideany(self.player, self.enemies):
+        if sum([1 if pygame.sprite.spritecollideany(i, self.enemies) else 0 for i in self.player.getCollisionBoxes()]):
             if not self.isGodmode: self.isGameOver = True
 
         if self.player.isOnFloor:
@@ -254,6 +256,7 @@ class Drakora():
 
 
     def doCheats(self):
+        # self.drawBoxes = True
         if self.isPressedKeysUpdated:
             pressedKeysStr = ''.join(self.pressedKeys)
 
