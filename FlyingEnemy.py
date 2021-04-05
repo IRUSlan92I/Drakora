@@ -22,6 +22,7 @@ class FlyingEnemy(Enemy):
     for image in images:
         image.set_colorkey((255,0,255))
 
+
     def __init__(self, mainGameClass):
         Enemy.__init__(self, mainGameClass)
 

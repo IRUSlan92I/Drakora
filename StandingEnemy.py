@@ -64,6 +64,7 @@ class StandingEnemy(Enemy):
         ),
     )
 
+
     def __init__(self, mainGameClass):
         Enemy.__init__(self, mainGameClass)
 
