@@ -18,8 +18,12 @@ class BackgroundLayerFrame(pygame.sprite.Sprite):
         self.rect.center = (mainGameClass.getScreenWidth()/2 + offset[0],
                             mainGameClass.getScreenHeight()/2 + offset[1])
 
+        self.__doubleX = float(self.rect.x)
+
 
     def update(self):
-        self.rect.x -= self.mainGameClass.getGameSpeed() * self.speedMultiplier
-        if self.rect.x < -self.rect.width:
-            self.rect.x += self.rect.width*2
+        self.__doubleX -= self.mainGameClass.getGameSpeed() * self.speedMultiplier
+        if self.__doubleX < -self.rect.width:
+            self.__doubleX += self.rect.width*2
+
+        self.rect.x = self.__doubleX

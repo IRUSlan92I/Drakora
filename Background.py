@@ -15,6 +15,7 @@ class Background():
     backgroundImages = (
         pygame.transform.scale(backgroundImage.subsurface((0, 0, 800, 150)), (3200, 600)),
         pygame.transform.scale(backgroundImage.subsurface((0, 150, 800, 150)), (3200, 600)),
+        pygame.transform.scale(backgroundImage.subsurface((0, 300, 800, 150)), (3200, 600)),
     )
     for image in backgroundImages:
         image.set_colorkey((255,0,255))
@@ -23,8 +24,9 @@ class Background():
         pygame.sprite.Sprite.__init__(self)
 
         self.layers = (
-            BackgroundLayer(Background.backgroundImages[0], mainGameClass, 0.5),
-            BackgroundLayer(Background.backgroundImages[1], mainGameClass, 1),
+            BackgroundLayer(Background.backgroundImages[0], mainGameClass, 0.25),
+            BackgroundLayer(Background.backgroundImages[1], mainGameClass, 0.5),
+            BackgroundLayer(Background.backgroundImages[2], mainGameClass, 1),
         )
 
 
