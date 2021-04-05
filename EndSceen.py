@@ -12,9 +12,12 @@ class EndSceen():
         self.fontLeaderBoard = pygame.font.Font(mainGameClass.getFont(), 30)
         self.fontLeaderBoardActive = pygame.font.Font(mainGameClass.getFont(), 30)
         self.fontLeaderBoardActive.underline = True
+        self.fontError = pygame.font.Font(mainGameClass.getFont(), 15)
+
         self.game = mainGameClass
 
     def newEndScreen(self):
+        self.endScreenTimer = 0;
         self.playerName = 'Player'
 
         self.scoresFromFile = []
@@ -35,8 +38,8 @@ class EndSceen():
         self.sortedDataByScores = sorted(enumerate(self.data), key=lambda i: i[1][1], reverse=True)
 
 
-    def renderText(self, text, font, color, center):
-        render = font.render(text, True, color)
+    def renderText(self, text, font, color, center, backColor=None):
+        render = font.render(text, True, color, backColor)
         rect = render.get_rect()
         rect.center = center
         self.game.screen.blit(render, rect)
@@ -49,7 +52,7 @@ class EndSceen():
             # print(self.data[i])
 
             if (self.game.getScore() > self.data[i][1] and not placeFlag):
-                self.renderText('>{0:3} {1:^10} {2:6d} {3:8.2f}'.format(j, self.playerName[:10], self.game.getScore(), self.game.getTime()),
+                self.renderText('>{0:3} {1:^10} {2:6d} {3:8.2f} '.format(j, self.playerName[:10], self.game.getScore(), self.game.getTime()),
                                 self.fontLeaderBoard, (255, 255, 255),
                                 (self.game.getScreenWidth()/2,100 + j*50))
                 j += 1
@@ -58,7 +61,7 @@ class EndSceen():
             if (j > number):
                 break
 
-            formatDataForOnePlayer = ' {0:3} {1:^10} {2:6d} {3:8.2f}'.format(j, *self.data[i])
+            formatDataForOnePlayer = ' {0:3} {1:^10} {2:6d} {3:8.2f} '.format(j, *self.data[i])
 
             self.renderText(formatDataForOnePlayer,
                             self.fontLeaderBoard, (255, 255, 255),
@@ -70,12 +73,12 @@ class EndSceen():
                 break
 
         if not placeFlag and j <= number:
-            self.renderText('>{0:3} {1:^10} {2:6d} {3:8.2f}'.format(j, self.playerName[:10], self.game.getScore(), self.game.getTime()),
+            self.renderText('>{0:3} {1:^10} {2:6d} {3:8.2f} '.format(j, self.playerName[:10], self.game.getScore(), self.game.getTime()),
                             self.fontLeaderBoard, (255, 255, 255),
                             (self.game.getScreenWidth()/2,100 + j*50))
 
 
-        self.renderText(' {0:^10} {1:>6} {2:>8}'.format('.....', '..', '.....'),
+        self.renderText(' {0:>3} {1:^10} {2:>6} {3:>8} '.format('..','.....', '..', '.....'),
                         self.fontLeaderBoard, (255, 255, 255),
                         (self.game.getScreenWidth()/2,100 + (number + 1)*50))
 
@@ -92,6 +95,10 @@ class EndSceen():
 
 
     def render(self):
+        backGround = pygame.Surface(self.game.screenSize, pygame.SRCALPHA)
+        backGround.fill((0,0,0,200))
+        self.game.screen.blit(backGround, (0,0))
+
         self.renderText('GAME OVER',
                         self.fontGameOver, (255, 255, 255),
                         (self.game.getScreenWidth()/2,50))
@@ -102,9 +109,27 @@ class EndSceen():
 
         self.drawTableLB(5)
 
-        self.renderText(' {0:3d} {1:^10} {2:6d} {3:8.2f}'.format(self.getScorePosition(self.game.getScore()), self.playerName[:10], self.game.getScore(), self.game.getTime()),
+        cursorChar = ' '
+        if self.endScreenTimer > self.game.targetFps / 3:
+            cursorChar = '_'
+
+        if self.endScreenTimer > 2 * self.game.targetFps / 3:
+            self.endScreenTimer = 0
+
+        self.endScreenTimer += 1
+
+        if len(self.playerName) > 0:
+            self.renderText(' {0:3d} {1:^10} {2:6d} {3:8.2f} '.format(self.getScorePosition(self.game.getScore()), self.playerName[:10] + (cursorChar if len(self.playerName) < 10 else ''), self.game.getScore(), self.game.getTime()),
                         self.fontLeaderBoard, (255, 255, 255),
-                        (self.game.getScreenWidth()/2,100 + 5*50 + 50 + 50))
+                        (self.game.getScreenWidth()/2,100 + (5 + 2)*50))
+        else:
+            self.renderText(' {0:3d} {1:^10} {2:6d} {3:8.2f} '.format(self.getScorePosition(self.game.getScore()), self.playerName[:10] + (cursorChar if len(self.playerName) < 10 else ''), self.game.getScore(), self.game.getTime()),
+                        self.fontLeaderBoard, (255, 255, 255),
+                        (self.game.getScreenWidth()/2,100 + (5 + 2)*50), (200, 20, 20))
+
+            self.renderText(' {0:^30} '.format('Missing player name'),
+                        self.fontError, (255, 255, 255),
+                        (self.game.getScreenWidth()/2,100 + (5 + 2)*50 + 25))
 
         self.renderText('Back',
                         self.fontLeaderBoard if not self.isBackButton else self.fontLeaderBoardActive, (255, 255, 255),
@@ -123,12 +148,13 @@ class EndSceen():
                 self.isBackButton = True
 
             elif event.key == pygame.K_RETURN:
-                self.saveResults()
+                if len(self.playerName) > 0:
+                    self.saveResults()
 
-                if self.isBackButton:
-                    self.game.newGame()
-                else:
-                    self.game.newGame()
+                    if self.isBackButton:
+                        self.game.newGame()
+                    else:
+                        self.game.newGame()
 
             elif event.key == pygame.K_BACKSPACE:
                 self.playerName = self.playerName[:len(self.playerName) - 1]
