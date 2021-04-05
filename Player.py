@@ -89,7 +89,7 @@ class Player(pygame.sprite.Sprite):
             self.rect = self.rect.inflate(0, -32)
 
             for i in self.collisionBoxes:
-                i.rect = i.inflate(0, -32)
+                i.rect.y -= 32
 
 
     def standup(self):
@@ -98,7 +98,7 @@ class Player(pygame.sprite.Sprite):
             self.rect = self.rect.inflate(0, 32)
 
             for i in self.collisionBoxes:
-                i.rect = i.inflate(0, 32)
+                i.rect.y += 32
 
     def updateSpeed(self, newGameSpeed):
         self.gameSpeed = newGameSpeed

@@ -256,7 +256,7 @@ class Drakora():
 
 
     def doCheats(self):
-        # self.drawBoxes = True
+        self.drawBoxes = True
         if self.isPressedKeysUpdated:
             pressedKeysStr = ''.join(self.pressedKeys)
 
