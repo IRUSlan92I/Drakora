@@ -40,15 +40,15 @@ class Drakora():
 
 
     def speedUp(self):
-        self.__gameSpeed *= 2
+        self.__gameSpeed += 1.5
 
 
     def speedDown(self):
-        if self.__gameSpeed > 2: self.__gameSpeed /= 2
+        if self.__gameSpeed > 1.5: self.__gameSpeed -= 1.5
 
 
     def speedReset(self):
-        self.__gameSpeed = 2
+        self.__gameSpeed = 1.5
 
 
     def addScore(self, score):
@@ -78,7 +78,7 @@ class Drakora():
 
         if self.player: self.player.kill()
 
-        self.player = Player()
+        self.player = Player(self)
         self.players.add(self.player)
 
         self.__score = 0
@@ -278,8 +278,6 @@ class Drakora():
 
 
     def logic(self):
-        self.player.updateSpeed(self.__gameSpeed)
-
         for event in pygame.event.get():
             self.player.control(event)
             self.endSceen.control(event)

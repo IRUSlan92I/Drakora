@@ -81,8 +81,10 @@ class Player(pygame.sprite.Sprite):
     def getCollisionBoxes(self):
         return self.collisionBoxes
 
-    def __init__(self):
+    def __init__(self, mainGameClass):
         pygame.sprite.Sprite.__init__(self)
+
+        self.mainGameClass = mainGameClass
 
         self.currentWalkImage = 0
         self.currentUpImage = 0
@@ -102,7 +104,6 @@ class Player(pygame.sprite.Sprite):
         self.isDownCrouch = False
         self.buttonsJump = (pygame.K_UP, pygame.K_SPACE,)
         self.buttonsCrouch = (pygame.K_DOWN,)
-        self.gameSpeed = 1
         self.updateCount = 0
 
         self.collisionBoxes = pygame.sprite.Group()
@@ -113,6 +114,8 @@ class Player(pygame.sprite.Sprite):
         self.collisionBoxes.add(collision)
         collision = CollisionBox(0, 35, 25, 40, self.rect.center)
         self.collisionBoxes.add(collision)
+
+        self.__doubleY = float(self.rect.x)
 
 
     def crouch(self):
@@ -127,8 +130,6 @@ class Player(pygame.sprite.Sprite):
             self.rect = self.rect.inflate(0, 32)
             
 
-    def updateSpeed(self, newGameSpeed):
-        self.gameSpeed = newGameSpeed
 
     def control(self, event):
         if event.type == pygame.KEYDOWN:
@@ -166,17 +167,19 @@ class Player(pygame.sprite.Sprite):
             elif self.isCrouching:
                     self.standup()
 
+        gameSpeed = self.mainGameClass.getGameSpeed()
+
         if self.isJumping:
-            if self.gameSpeed <= 2:     maxHoverCount = 30
-            elif self.gameSpeed <= 4:   maxHoverCount = 23
-            elif self.gameSpeed <= 8:   maxHoverCount = 16
-            elif self.gameSpeed <= 16:  maxHoverCount = 9
-            elif self.gameSpeed <= 32:  maxHoverCount = 5
-            elif self.gameSpeed <= 64:  maxHoverCount = 2
+            if gameSpeed <= 2:     maxHoverCount = 30
+            elif gameSpeed <= 4:   maxHoverCount = 23
+            elif gameSpeed <= 8:   maxHoverCount = 16
+            elif gameSpeed <= 16:  maxHoverCount = 9
+            elif gameSpeed <= 32:  maxHoverCount = 5
+            elif gameSpeed <= 64:  maxHoverCount = 2
             else:                       maxHoverCount = 1
 
             if self.isDownJump and self.hoverCount < maxHoverCount:
-                self.speed -= self.gameSpeed/8 * (
+                self.speed -= gameSpeed/8 * (
                     (math.cos(2*math.pi*self.hoverCount/
                                         (2*maxHoverCount))+1)/2.5 + 0.2
                 )
@@ -184,14 +187,15 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.isJumping = False
         else:
-            self.speed += 0.07 * self.gameSpeed
+            self.speed += 0.07 * gameSpeed
 
-        self.rect.y += self.speed
+        self.__doubleY += self.speed
+        self.rect.y = self.__doubleY
 
-        for i in self.collisionBoxes:
-            i.setY(self.rect.y)
+        for collisionBox in self.collisionBoxes:
+            collisionBox.setY(self.rect.y)
 
-        if self.updateCount >= 22 - math.log2(self.gameSpeed) * 2:
+        if self.updateCount >= 22 - math.log2(gameSpeed) * 2:
             if self.isOnFloor:
                 if self.isCrouching:
                     self.currentCrouchImage += 1
