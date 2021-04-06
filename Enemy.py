@@ -16,6 +16,12 @@ class Enemy(pygame.sprite.Sprite):
         self.height = (mainGameClass.getScreenHeight()
                         - mainGameClass.getFloorHeight())
 
+        self.collisionBoxes = pygame.sprite.Group()
+
+
+    def getCollisionBoxes(self):
+        return self.collisionBoxes
+
 
     def update(self):
         if (self.rect.x < -self.rect.width):
@@ -23,3 +29,6 @@ class Enemy(pygame.sprite.Sprite):
             self.thisGame.addScore(1)
 
         self.rect.x -= self.speed
+
+        for i in self.collisionBoxes:
+            i.setX(self.rect.x)
