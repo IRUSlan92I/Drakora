@@ -151,14 +151,6 @@ class StandingEnemy(Enemy):
 
         self.image = random.choice(StandingEnemy.images[self.subtype-1])
 
-        # if   self.subtype == 1: self.image = pygame.Surface((32, 96))
-        # elif self.subtype == 2: self.image = pygame.Surface((32, 64))
-        # elif self.subtype == 3: self.image = pygame.Surface((64, 64))
-        # elif self.subtype == 4: self.image = pygame.Surface((32, 32))
-        # elif self.subtype == 5: self.image = pygame.Surface((64, 32))
-        # else:                   self.image = pygame.Surface((96, 32))
-
-        # self.image.fill((0, 153, 0))
         self.rect = self.image.get_rect()
         self.height -= self.rect.height/2
 

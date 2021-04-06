@@ -219,10 +219,6 @@ class Drakora():
                             self.fontGodmode, (255, 255, 255),
                             (self.getScreenWidth()/2,60))
 
-        self.renderText(''.join(self.pressedKeys),
-                        self.fontGodmode, (255, 255, 255),
-                        (self.getScreenWidth()/2,80))
-
         pygame.display.flip()
 
 

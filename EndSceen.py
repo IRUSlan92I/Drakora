@@ -60,8 +60,6 @@ class EndSceen():
         placeFlag = False
 
         for i in [i[0] for i in self.sortedDataByScores[:number]]:
-            # print(self.data[i])
-
             if (self.game.getScore() > self.data[i][1] and not placeFlag):
                 self.renderText('>{0:3} {1:^10} {2:6d} {3:8.2f} '.format(j,
                                     self.playerName[:10], self.game.getScore(),
@@ -101,8 +99,6 @@ class EndSceen():
                         ),
                         self.fontLeaderBoard, (255, 255, 255),
                         (self.game.getScreenWidth()/2,100 + (number + 1)*50))
-
-        # for i in rows:
 
     def getScorePosition(self, score):
         counter = 1
@@ -200,7 +196,6 @@ class EndSceen():
                     self.playerName += pygame.key.name(event.key).upper()
                 else:
                     self.playerName += pygame.key.name(event.key).lower()
-                # self.playerName += self.game.charKeys[event.key]
 
     def saveResults(self):
         with open ('leaders.txt', 'r') as fileWithData:
