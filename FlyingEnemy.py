@@ -14,11 +14,13 @@ from CollisionBox import CollisionBox
 
 class FlyingEnemy(Enemy):
     imgDir = os.path.join(os.path.dirname(__file__), 'data')
-    senemyImage = pygame.image.load(os.path.join(imgDir, 'fenemy.png'))#.convert()
+    senemyImage = pygame.image.load(
+        os.path.join(imgDir, 'fenemy.png')
+    )#.convert()
     images = (
-        pygame.transform.scale(senemyImage.subsurface((0, 0, 16, 8)), (64, 32)),
-        pygame.transform.scale(senemyImage.subsurface((16, 0, 16, 8)), (64, 32)),
-        pygame.transform.scale(senemyImage.subsurface((32, 0, 16, 8)), (64, 32)),
+        pygame.transform.scale(senemyImage.subsurface((0, 0, 16, 8)),(64, 32)),
+        pygame.transform.scale(senemyImage.subsurface((16, 0, 16, 8)),(64, 32)),
+        pygame.transform.scale(senemyImage.subsurface((32, 0, 16, 8)),(64, 32)),
     )
     for image in images:
         image.set_colorkey((255,0,255))

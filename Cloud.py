@@ -17,10 +17,11 @@ class Cloud(pygame.sprite.Sprite):
         self.image.fill((color, color, color))
 
         self.rect = self.image.get_rect()
-        self.rect.center = (mainGameClass.getScreenWidth() + self.rect.width,
-                            mainGameClass.getScreenHeight()/2 -
-                            random.randint(100,
-                                mainGameClass.getScreenHeight()/2-100)+50*(2-cloudType))
+        self.rect.center = (
+            mainGameClass.getScreenWidth() + self.rect.width,
+            mainGameClass.getScreenHeight()/2 - random.randint(100,
+                mainGameClass.getScreenHeight()/2-100) + 50*(2-cloudType)
+        )
         self.speed = cloudType*mainGameClass.getGameSpeed() / 6
 
         self.__doubleX = float(self.rect.x)

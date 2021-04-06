@@ -14,8 +14,12 @@ class BackgroundLayer():
 
         self.frames = pygame.sprite.Group()
 
-        self.frames.add(BackgroundLayerFrame(image, mainGameClass, (0, 0), speedMultiplier))
-        self.frames.add(BackgroundLayerFrame(image, mainGameClass, (offset, 0), speedMultiplier))
+        self.frames.add(BackgroundLayerFrame(
+            image, mainGameClass, (0, 0), speedMultiplier)
+        )
+        self.frames.add(BackgroundLayerFrame(
+            image, mainGameClass, (offset, 0), speedMultiplier)
+        )
 
 
     def update(self):

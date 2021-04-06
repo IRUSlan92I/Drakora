@@ -140,15 +140,10 @@ class Drakora():
         self.fontMessage = pygame.font.Font(self.font, 56)
         self.fontGodmode = pygame.font.Font(self.font, 12)
 
-        self.charKeys = {
-            pygame.K_a:'a', pygame.K_b:'b', pygame.K_c:'c', pygame.K_d:'d',
-            pygame.K_e:'e', pygame.K_f:'f', pygame.K_g:'g', pygame.K_h:'h',
-            pygame.K_i:'i', pygame.K_j:'j', pygame.K_k:'k', pygame.K_l:'l',
-            pygame.K_m:'m', pygame.K_n:'n', pygame.K_o:'o', pygame.K_p:'p',
-            pygame.K_q:'q', pygame.K_r:'r', pygame.K_s:'s', pygame.K_t:'t',
-            pygame.K_u:'u', pygame.K_v:'v', pygame.K_w:'w', pygame.K_x:'x',
-            pygame.K_y:'y', pygame.K_z:'z',
-        }
+        self.charKeys = tuple(
+            pygame.key.key_code(chr(i)) for i in range(ord("a"), ord("z"))
+        )
+
         self.pressedKeys = deque(maxlen=10)
         self.isPressedKeysUpdated = True
 
@@ -169,12 +164,12 @@ class Drakora():
 
 
     def render(self):
-        # self.screen.fill((102, 153, 255))
+        self.screen.fill((61, 150, 223))
+        for cloudGroup in self.cloudGroups[:2]: cloudGroup.draw(self.screen)
         self.background.draw(self.screen)
-        for cloudGroup in self.cloudGroups: cloudGroup.draw(self.screen)
+        for cloudGroup in self.cloudGroups[2:]: cloudGroup.draw(self.screen)
         self.enemies.draw(self.screen)
         self.players.draw(self.screen)
-        self.floors.draw(self.screen)
 
         if self.drawBoxes:
             for player in self.players:
@@ -302,7 +297,7 @@ class Drakora():
 
             elif event.type == pygame.KEYUP:
                 if event.key in self.charKeys:
-                    self.pressedKeys.append(self.charKeys[event.key])
+                    self.pressedKeys.append(pygame.key.name(event.key))
                     self.isPressedKeysUpdated = True
 
         self.doCheats()
