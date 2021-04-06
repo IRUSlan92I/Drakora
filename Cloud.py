@@ -10,6 +10,10 @@ import random
 class Cloud(pygame.sprite.Sprite):
     def __init__(self, mainGameClass, cloudType):
         pygame.sprite.Sprite.__init__(self)
+
+        self.type = cloudType
+        self.mainGameClass = mainGameClass
+
         self.image = pygame.Surface((random.randint(150, 350),
                                      random.randint(50, 150)))
 
@@ -18,11 +22,10 @@ class Cloud(pygame.sprite.Sprite):
 
         self.rect = self.image.get_rect()
         self.rect.center = (
-            mainGameClass.getScreenWidth() + self.rect.width,
-            mainGameClass.getScreenHeight()/2 - random.randint(100,
-                mainGameClass.getScreenHeight()/2-100) + 50*(2-cloudType)
+            self.mainGameClass.getScreenWidth() + self.rect.width,
+            self.mainGameClass.getScreenHeight()/2 - random.randint(100,
+                self.mainGameClass.getScreenHeight()/2-100) + 50*(2-cloudType)
         )
-        self.speed = cloudType*mainGameClass.getGameSpeed() / 6
 
         self.__doubleX = float(self.rect.x)
 
@@ -31,5 +34,5 @@ class Cloud(pygame.sprite.Sprite):
         if (self.rect.x < -self.rect.width):
             self.kill()
 
-        self.__doubleX -= self.speed
+        self.__doubleX -= self.type*self.mainGameClass.getGameSpeed() / 6
         self.rect.x = self.__doubleX

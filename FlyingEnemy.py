@@ -42,17 +42,21 @@ class FlyingEnemy(Enemy):
         self.rect.center = (mainGameClass.getScreenWidth() + self.rect.width,
                             self.height)
 
-        collision = CollisionBox(2, 0, self.rect.w - 28, self.rect.h - 8, self.rect.center)
+        self.doubleX = float(self.rect.x)
+
+        collision = CollisionBox(2, 0, self.rect.w - 28,
+                                self.rect.h - 8, self.rect.center)
         self.collisionBoxes.add(collision)
 
-        self.speed = self.thisGame.getGameSpeed()*2
+        self.speed = self.mainGameClass.getGameSpeed()*2
 
 
     def update(self):
         super().update()
 
         self.updateCount += 1
-        if self.updateCount >= 22 - math.log2(self.thisGame.getGameSpeed()) * 2:
+        if self.updateCount >= 22 - math.log2(
+                                        self.mainGameClass.getGameSpeed()) * 2:
             self.currentImage += 1
             if self.currentImage >= len(FlyingEnemy.images):
                 self.currentImage = 0

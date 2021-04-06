@@ -5,3 +5,4 @@ Cheater 1000 0.01
 New-Kolya 2 15.20
 1 1 10.02
 RUSlan 29 82.42
+Player 0 5.58
