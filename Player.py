@@ -78,8 +78,6 @@ class Player(pygame.sprite.Sprite):
         for image in array:
             image.set_colorkey((255,0,255))
 
-    def getCollisionBoxes(self):
-        return self.collisionBoxes
 
     def __init__(self, mainGameClass):
         pygame.sprite.Sprite.__init__(self)
@@ -108,14 +106,15 @@ class Player(pygame.sprite.Sprite):
 
         self.collisionBoxes = pygame.sprite.Group()
 
-        collision = CollisionBox(0, 20, 60, 20, self.rect.center)
-        self.collisionBoxes.add(collision)
-        collision = CollisionBox(-10, 5, 30, 20, self.rect.center)
-        self.collisionBoxes.add(collision)
-        collision = CollisionBox(0, 35, 25, 40, self.rect.center)
-        self.collisionBoxes.add(collision)
+        self.collisionBoxes.add(CollisionBox(0, 20, 60, 20, self.rect.center))
+        self.collisionBoxes.add(CollisionBox(-10, 5, 30, 20, self.rect.center))
+        self.collisionBoxes.add(CollisionBox(0, 35, 25, 40, self.rect.center))
 
         self.__doubleY = float(self.rect.x)
+
+
+    def getCollisionBoxes(self):
+        return self.collisionBoxes
 
 
     def crouch(self):
@@ -128,7 +127,6 @@ class Player(pygame.sprite.Sprite):
         if self.isCrouching:
             self.isCrouching = False
             self.rect = self.rect.inflate(0, 32)
-            
 
 
     def control(self, event):
