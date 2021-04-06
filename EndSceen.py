@@ -2,8 +2,10 @@
 Enemy entity class
 """
 
-
+import pickle
 import pygame
+import hashlib
+from cryptography.fernet import Fernet
 
 
 class EndSceen():
@@ -22,7 +24,11 @@ class EndSceen():
             mainGameClass.getFont(), 15
         )
 
+        key = b'Lh2b2rragfwD8QR4VU-V2TmSuio4yp-WbFwo4tcoyzs='
+        self.code = Fernet(key)
+
         self.game = mainGameClass
+        self.saveFileName = 'leaders.lb'
 
     def newEndScreen(self):
         self.endScreenTimer = 0;
@@ -30,23 +36,29 @@ class EndSceen():
 
         self.scoresFromFile = []
         self.data = []
+        self.sortedDataByScores = []
 
         self.isBackButton = True
 
-        fileWithData = open('leaders.txt')
+        try:
+            fileWithData = open(self.saveFileName, 'rb')
+        except IOError as e:
+            pass
+        else:
+            listPlayers = pickle.load(fileWithData)
 
-        for line in fileWithData:
-            oneStr = line.split()
+            for line in listPlayers:
+                oneStr = self.code.decrypt(line).decode().split()
 
-            if (len(oneStr) == 3):
-                self.data.append(
-                    [oneStr[0][:10], int(oneStr[1]), float(oneStr[2])]
-                )
+                if (len(oneStr) == 3):
+                    self.data.append(
+                        [oneStr[0][:10], int(oneStr[1]), float(oneStr[2])]
+                    )
 
-        fileWithData.close()
+            fileWithData.close()
 
-        self.sortedDataByScores = sorted(enumerate(self.data),
-                                        key=lambda i: i[1][1], reverse=True)
+            self.sortedDataByScores = sorted(enumerate(self.data),
+                                            key=lambda i: i[1][1], reverse=True)
 
 
     def renderText(self, text, font, color, center, backColor=None):
@@ -199,19 +211,25 @@ class EndSceen():
                     self.playerName += pygame.key.name(event.key).lower()
 
     def saveResults(self):
-        with open ('leaders.txt', 'r') as fileWithData:
-            tmpData = fileWithData.readlines()
-        fileWithData.close()
-
         newData = []
-        for line in tmpData:
-            if len(line.split()) == 3:
-                if not (line.split()[0].rstrip() == self.playerName.rstrip()):
-                    newData.append(line)
 
-        newData.append('{0} {1} {2:.2f}\n'.format(self.playerName,
-                        self.game.getScore(), self.game.getTime()))
+        try:
+            fileWithData = open(self.saveFileName, 'rb')
+        except IOError as e:
+            pass
+        else:
+            tmpData = pickle.load(fileWithData)
+            fileWithData.close()
 
-        with open ('leaders.txt', 'w') as fileWithData:
-            fileWithData.writelines(newData)
+            for line in tmpData:
+                oneStr = self.code.decrypt(line).decode()
+                if len(oneStr.split()) == 3:
+                    if not (oneStr.split()[0].rstrip() == self.playerName.rstrip()):
+                        newData.append(line)
+
+        newData.append(self.code.encrypt(('{0} {1} {2:.2f}\n'.format(self.playerName,
+                        self.game.getScore(), self.game.getTime())).encode()))
+
+        with open (self.saveFileName, 'wb') as fileWithData:
+            pickle.dump(newData, fileWithData)
         fileWithData.close()
