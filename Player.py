@@ -150,7 +150,7 @@ class Player(pygame.sprite.Sprite):
             self.hoverCount = 0
 
         if self.isOnFloor:
-            self.speed = 0
+            self.speed = 0.0
 
             if self.isDownJump:
                 self.isJumping = True
