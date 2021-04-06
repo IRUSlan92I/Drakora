@@ -164,8 +164,10 @@ class Drakora():
 
 
     def render(self):
+        self.screen.fill((61, 150, 223))
+        for cloudGroup in self.cloudGroups[:2]: cloudGroup.draw(self.screen)
         self.background.draw(self.screen)
-        for cloudGroup in self.cloudGroups: cloudGroup.draw(self.screen)
+        for cloudGroup in self.cloudGroups[2:]: cloudGroup.draw(self.screen)
         self.enemies.draw(self.screen)
         self.players.draw(self.screen)
 
