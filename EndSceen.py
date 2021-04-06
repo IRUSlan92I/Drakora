@@ -47,49 +47,52 @@ class EndSceen():
 
         self.isBackButton = True
 
-        self.loadResults()
+        self.data = self.getResultsFromFile()
+        self.sortedDataByScores = sorted(enumerate(self.data),
+                                        key=lambda i: i[1][1], reverse=True)
 
 
-    def loadResults(self):
+    def getResultsFromFile(self):
+        data = []
+
         with open(self.saveFileName, 'rb') as file:
             for line in file:
                 try:
-                    name, score, time = with line.split()
-                    self.data.append(
-                        [name[:10].decode('ascii'), int(score), float(time)]
+                    line = self.shiftRight(line).decode('ascii')
+                    name, score, time = line.split()
+                    data.append(
+                        [name[:10], int(score), float(time)]
                     )
                 except Exception:
                     continue
-
-            file.close()
-
-            self.sortedDataByScores = sorted(enumerate(self.data),
-                                            key=lambda i: i[1][1], reverse=True)
+        return data
 
 
     def saveResults(self):
-        newData = []
+        data = self.getResultsFromFile()
 
-        # try:
-        #     fileWithData = open(self.saveFileName, 'rb')
-        # except IOError as e:
-        #     pass
-        # else:
-        #     tmpData = pickle.load(fileWithData)
-        #     fileWithData.close()
-        #
-        #     for line in tmpData:
-        #         if len(line.split()) == 3:
-        #             if not (line.split()[0].rstrip() == self.playerName.rstrip()):
-        #                 newData.append(line)
-        #
-        # newData.append(('{0} {1} {2:.2f}\n'.format(self.playerName,
+        # data.append(('{0} {1} {2:.2f}\n'.format(self.playerName,
         #                 self.game.getScore(), self.game.getTime())))
-        #
-        # with open (self.saveFileName, 'wb') as fileWithData:
-        #     pickle.dump(newData, fileWithData)
-        #
-        # fileWithData.close()
+
+        data.append(
+            [self.playerName[:10],
+            int(self.game.getScore()),
+            float(self.game.getTime())]
+        )
+
+        with open(self.saveFileName, 'wb') as file:
+            for entry in data:
+                string = '{} {} {}\n'.format(*entry)
+                arr = string.encode('ascii')
+                file.write(self.shiftLeft(arr))
+
+
+    def shiftLeft(self, arr):
+        return bytearray([lambda x: x if x == 10 else x-32 for x in arr])
+
+
+    def shiftRight(self, arr):
+        return bytearray([lambda x: x if x == 10 else x+32 for x in arr])
 
 
     def renderText(self, text, font, color, center, backColor=None):
