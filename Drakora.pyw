@@ -247,13 +247,7 @@ class Drakora():
                     self.isGameOver = True
                     break
 
-        if self.player.isOnFloor:
-            self.player.rect.y += 1
-            if not pygame.sprite.spritecollideany(self.player, self.floors):
-                self.player.isOnFloor = False
-        else:
-            if pygame.sprite.spritecollideany(self.player, self.floors):
-                self.player.isOnFloor = True
+        self.player.isOnFloor = pygame.sprite.spritecollideany(self.player, self.floors)
 
         if self.player.isOnFloor:
             while pygame.sprite.spritecollideany(self.player, self.floors):
