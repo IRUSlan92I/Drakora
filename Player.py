@@ -120,17 +120,12 @@ class Player(pygame.sprite.Sprite):
             self.isCrouching = True
             self.rect = self.rect.inflate(0, -32)
 
-            for i in self.collisionBoxes:
-                i.rect.y -= 32
-
 
     def standup(self):
         if self.isCrouching:
             self.isCrouching = False
             self.rect = self.rect.inflate(0, 32)
-
-            for i in self.collisionBoxes:
-                i.rect.y += 32
+            
 
     def updateSpeed(self, newGameSpeed):
         self.gameSpeed = newGameSpeed
