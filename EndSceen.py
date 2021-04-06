@@ -4,8 +4,6 @@ Enemy entity class
 
 import pickle
 import pygame
-import hashlib
-from cryptography.fernet import Fernet
 
 
 class EndSceen():
@@ -24,11 +22,9 @@ class EndSceen():
             mainGameClass.getFont(), 15
         )
 
-        key = b'Lh2b2rragfwD8QR4VU-V2TmSuio4yp-WbFwo4tcoyzs='
-        self.code = Fernet(key)
-
         self.game = mainGameClass
         self.saveFileName = 'leaders.lb'
+
 
     def newEndScreen(self):
         self.endScreenTimer = 0;
@@ -48,11 +44,9 @@ class EndSceen():
             listPlayers = pickle.load(fileWithData)
 
             for line in listPlayers:
-                oneStr = self.code.decrypt(line).decode().split()
-
-                if (len(oneStr) == 3):
-                    self.data.append(
-                        [oneStr[0][:10], int(oneStr[1]), float(oneStr[2])]
+                if (len(line) == 3):
+                    self.data.append (
+                        [line[0][:10], int(line[1]), float(line[2])]
                     )
 
             fileWithData.close()
@@ -66,6 +60,7 @@ class EndSceen():
         rect = render.get_rect()
         rect.center = center
         self.game.screen.blit(render, rect)
+
 
     def drawTableLB(self, number):
         j = 1
@@ -111,6 +106,7 @@ class EndSceen():
                         ),
                         self.fontLeaderBoard, (255, 255, 255),
                         (self.game.getScreenWidth()/2,100 + (number + 1)*50))
+
 
     def getScorePosition(self, score):
         counter = 1
@@ -182,6 +178,7 @@ class EndSceen():
                         (self.game.getScreenWidth()/2 + 100,
                             self.game.getScreenHeight() - 80))
 
+
     def control(self, event):
         if event.type == pygame.KEYDOWN and self.game.isGameOver:
             if event.key == pygame.K_RIGHT:
@@ -210,6 +207,7 @@ class EndSceen():
                 else:
                     self.playerName += pygame.key.name(event.key).lower()
 
+
     def saveResults(self):
         newData = []
 
@@ -222,13 +220,12 @@ class EndSceen():
             fileWithData.close()
 
             for line in tmpData:
-                oneStr = self.code.decrypt(line).decode()
-                if len(oneStr.split()) == 3:
-                    if not (oneStr.split()[0].rstrip() == self.playerName.rstrip()):
+                if len(line.split()) == 3:
+                    if not (line.split()[0].rstrip() == self.playerName.rstrip()):
                         newData.append(line)
 
-        newData.append(self.code.encrypt(('{0} {1} {2:.2f}\n'.format(self.playerName,
-                        self.game.getScore(), self.game.getTime())).encode()))
+        newData.append(('{0} {1} {2:.2f}\n'.format(self.playerName,
+                        self.game.getScore(), self.game.getTime())))
 
         with open (self.saveFileName, 'wb') as fileWithData:
             pickle.dump(newData, fileWithData)
