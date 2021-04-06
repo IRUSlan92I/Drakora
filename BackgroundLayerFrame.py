@@ -22,7 +22,7 @@ class BackgroundLayerFrame(pygame.sprite.Sprite):
 
 
     def update(self):
-        self.__doubleX -= self.mainGameClass.getGameSpeed() * self.speedMultiplier
+        self.__doubleX -= self.mainGameClass.getGameSpeed()*self.speedMultiplier
         if self.__doubleX < -self.rect.width:
             self.__doubleX += self.rect.width*2
 

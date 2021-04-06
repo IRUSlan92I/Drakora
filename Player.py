@@ -11,33 +11,67 @@ from CollisionBox import CollisionBox
 
 class Player(pygame.sprite.Sprite):
     imgDir = os.path.join(os.path.dirname(__file__), 'data')
-    playerImage = pygame.image.load(os.path.join(imgDir, 'player.png'))#.convert()
+    playerImage = pygame.image.load(
+        os.path.join(imgDir, 'player.png')
+    )#.convert()
     walkImages = (
-        pygame.transform.scale(playerImage.subsurface((0, 0, 16, 24)), (64, 98)),
-        pygame.transform.scale(playerImage.subsurface((16, 0, 16, 24)), (64, 98)),
-        pygame.transform.scale(playerImage.subsurface((32, 0, 16, 24)), (64, 98)),
-        pygame.transform.scale(playerImage.subsurface((48, 0, 16, 24)), (64, 98)),
+        pygame.transform.scale(
+            playerImage.subsurface((0, 0, 16, 24)), (64, 98)
+        ),
+        pygame.transform.scale(
+            playerImage.subsurface((16, 0, 16, 24)), (64, 98)
+        ),
+        pygame.transform.scale(
+            playerImage.subsurface((32, 0, 16, 24)), (64, 98)
+        ),
+        pygame.transform.scale(
+            playerImage.subsurface((48, 0, 16, 24)), (64, 98)
+        ),
     )
 
     upImages = (
-        pygame.transform.scale(playerImage.subsurface((0, 24, 16, 24)), (64, 98)),
-        pygame.transform.scale(playerImage.subsurface((16, 24, 16, 24)), (64, 98)),
-        pygame.transform.scale(playerImage.subsurface((32, 24, 16, 24)), (64, 98)),
-        pygame.transform.scale(playerImage.subsurface((48, 24, 16, 24)), (64, 98)),
+        pygame.transform.scale(
+            playerImage.subsurface((0, 24, 16, 24)), (64, 98)
+        ),
+        pygame.transform.scale(
+            playerImage.subsurface((16, 24, 16, 24)), (64, 98)
+        ),
+        pygame.transform.scale(
+            playerImage.subsurface((32, 24, 16, 24)), (64, 98)
+        ),
+        pygame.transform.scale(
+            playerImage.subsurface((48, 24, 16, 24)), (64, 98)
+        ),
     )
 
     downImages = (
-        pygame.transform.scale(playerImage.subsurface((0, 48, 16, 24)), (64, 98)),
-        pygame.transform.scale(playerImage.subsurface((16, 48, 16, 24)), (64, 98)),
-        pygame.transform.scale(playerImage.subsurface((32, 48, 16, 24)), (64, 98)),
-        pygame.transform.scale(playerImage.subsurface((48, 48, 16, 24)), (64, 98)),
+        pygame.transform.scale(
+            playerImage.subsurface((0, 48, 16, 24)), (64, 98)
+        ),
+        pygame.transform.scale(
+            playerImage.subsurface((16, 48, 16, 24)), (64, 98)
+        ),
+        pygame.transform.scale(
+            playerImage.subsurface((32, 48, 16, 24)), (64, 98)
+        ),
+        pygame.transform.scale(
+            playerImage.subsurface((48, 48, 16, 24)), (64, 98)
+        ),
     )
 
     crouchImages = (
-        pygame.transform.scale(playerImage.subsurface((0, 72, 16, 16)), (64, 64)),
-        pygame.transform.scale(playerImage.subsurface((16, 72, 16, 16)), (64, 64)),
-        pygame.transform.scale(playerImage.subsurface((32, 72, 16, 16)), (64, 64)),
-        pygame.transform.scale(playerImage.subsurface((48, 72, 16, 16)), (64, 64)),
+        pygame.transform.scale(
+            playerImage.subsurface((0, 72, 16, 16)), (64, 64)
+        ),
+        pygame.transform.scale(
+            playerImage.subsurface((16, 72, 16, 16)), (64, 64)
+        ),
+        pygame.transform.scale(
+            playerImage.subsurface((32, 72, 16, 16)), (64, 64)
+        ),
+        pygame.transform.scale(
+            playerImage.subsurface((48, 72, 16, 16)), (64, 64)
+        ),
     )
 
     for array in (walkImages, upImages, downImages, crouchImages):
@@ -147,7 +181,10 @@ class Player(pygame.sprite.Sprite):
             else:                       maxHoverCount = 1
 
             if self.isDownJump and self.hoverCount < maxHoverCount:
-                self.speed -= self.gameSpeed/8 * ((math.cos(2*math.pi*self.hoverCount/(2*maxHoverCount))+1)/2.5+0.2)
+                self.speed -= self.gameSpeed/8 * (
+                    (math.cos(2*math.pi*self.hoverCount/
+                                        (2*maxHoverCount))+1)/2.5 + 0.2
+                )
                 self.hoverCount += 1
             else:
                 self.isJumping = False
