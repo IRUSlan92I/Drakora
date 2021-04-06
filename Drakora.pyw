@@ -258,8 +258,8 @@ class Drakora():
 
         if self.player.isOnFloor:
             while pygame.sprite.spritecollideany(self.player, self.floors):
-                self.player.rect.y -= 1
-                self.player._Player__doubleY -= 1
+                self.player.rect.y -= 0.1
+                self.player._Player__doubleY -= 0.1
 
 
     def doCheats(self):
