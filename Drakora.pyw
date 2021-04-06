@@ -221,6 +221,10 @@ class Drakora():
                             self.fontGodmode, (255, 255, 255),
                             (self.getScreenWidth()/2,60))
 
+        self.renderText('%f'%self.player.speed,
+                            self.fontGodmode, (255, 255, 255),
+                            (self.getScreenWidth()/2,60))
+
         pygame.display.flip()
 
 
@@ -254,6 +258,25 @@ class Drakora():
         if self.player.isOnFloor:
             while pygame.sprite.spritecollideany(self.player, self.floors):
                 self.player.rect.y -= 1
+
+
+
+
+                self.player._Player__doubleY -= 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     def doCheats(self):
