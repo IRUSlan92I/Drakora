@@ -190,8 +190,9 @@ class EndSceen():
             elif event.key == pygame.K_BACKSPACE:
                 self.playerName = self.playerName[:len(self.playerName) - 1]
 
-            elif len(pygame.key.name(event.key)) == 1 and
-                                                len(self.playerName) < 10:
+            elif len(
+                pygame.key.name(event.key)
+            ) == 1 and len(self.playerName) < 10:
                 if pygame.key.get_mods() & pygame.KMOD_LSHIFT:
                     self.playerName += pygame.key.name(event.key).upper()
                 else:

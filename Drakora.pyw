@@ -168,7 +168,6 @@ class Drakora():
         for cloudGroup in self.cloudGroups: cloudGroup.draw(self.screen)
         self.enemies.draw(self.screen)
         self.players.draw(self.screen)
-        self.floors.draw(self.screen)
 
         if self.drawBoxes:
             for player in self.players:
