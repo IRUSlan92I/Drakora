@@ -8,6 +8,7 @@ import random
 import os
 
 from Enemy import Enemy
+from CollisionBox import CollisionBox
 
 
 class StandingEnemy(Enemy):
@@ -147,14 +148,17 @@ class StandingEnemy(Enemy):
                 image.set_colorkey((255,0,255))
 
 
-        self.subtype = random.randint(1, len(StandingEnemy.images))
+        self.subtype = random.randint(0, len(StandingEnemy.images) - 1)
 
-        self.image = random.choice(StandingEnemy.images[self.subtype-1])
+        self.image = random.choice(StandingEnemy.images[self.subtype])
 
         self.rect = self.image.get_rect()
         self.height -= self.rect.height/2
 
         self.rect.center = (mainGameClass.getScreenWidth() + self.rect.width,
                             self.height)
+
+        collision = CollisionBox(9, 3, self.rect.w - 18, self.rect.h - 6, self.rect.center)
+        self.collisionBoxes.add(collision)
 
         self.speed = self.thisGame.getGameSpeed()

@@ -9,6 +9,7 @@ import math
 import os
 
 from Enemy import Enemy
+from CollisionBox import CollisionBox
 
 
 class FlyingEnemy(Enemy):
@@ -40,6 +41,9 @@ class FlyingEnemy(Enemy):
 
         self.rect.center = (mainGameClass.getScreenWidth() + self.rect.width,
                             self.height)
+
+        collision = CollisionBox(2, 0, self.rect.w - 28, self.rect.h - 8, self.rect.center)
+        self.collisionBoxes.add(collision)
 
         self.speed = self.thisGame.getGameSpeed()*2
 

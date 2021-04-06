@@ -173,10 +173,11 @@ class Drakora():
 
         if self.drawBoxes:
             for player in self.players:
-                for collision in self.player.getCollisionBoxes():
-                    pygame.draw.rect(self.screen, (255, 0, 0), collision.rect,1)
+                for collision in player.getCollisionBoxes():
+                    pygame.draw.rect(self.screen, (255, 0, 0), collision.rect, 1)
             for enemy in self.enemies:
-                pygame.draw.rect(self.screen, (255, 0, 0), enemy.rect, 1)
+                for collision in enemy.getCollisionBoxes():
+                    pygame.draw.rect(self.screen, (255, 0, 0), collision.rect, 1)
             for floor in self.floors:
                 pygame.draw.rect(self.screen, (255, 0, 0), floor.rect, 1)
 
@@ -235,11 +236,12 @@ class Drakora():
         else:
             return 300
 
-
     def collideCheck(self):
-        if sum([1 if pygame.sprite.spritecollideany(i, self.enemies) else 0
-                for i in self.player.getCollisionBoxes()]):
-            if not self.isGodmode: self.isGameOver = True
+        for enemy in self.enemies:
+            if pygame.sprite.groupcollide(self.player.getCollisionBoxes(), enemy.getCollisionBoxes(), None, None):
+                if not self.isGodmode:
+                    self.isGameOver = True
+                    break
 
         if self.player.isOnFloor:
             self.player.rect.y += 1

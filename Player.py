@@ -105,14 +105,14 @@ class Player(pygame.sprite.Sprite):
         self.gameSpeed = 1
         self.updateCount = 0
 
-        self.collisionBoxes = []
+        self.collisionBoxes = pygame.sprite.Group()
 
         collision = CollisionBox(0, 20, 60, 20, self.rect.center)
-        self.collisionBoxes.append(collision)
+        self.collisionBoxes.add(collision)
         collision = CollisionBox(-10, 5, 30, 20, self.rect.center)
-        self.collisionBoxes.append(collision)
+        self.collisionBoxes.add(collision)
         collision = CollisionBox(0, 35, 25, 40, self.rect.center)
-        self.collisionBoxes.append(collision)
+        self.collisionBoxes.add(collision)
 
 
     def crouch(self):
