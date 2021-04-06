@@ -240,9 +240,8 @@ class Drakora():
         else:
             return 300
 
-
     def collideCheck(self):
-        if sum([1 if pygame.sprite.spritecollideany(i, self.enemies) else 0 for i in self.player.getCollisionBoxes()]):
+        if pygame.sprite.groupcollide(self.player.getCollisionBoxes(), self.enemies, None, None):
             if not self.isGodmode: self.isGameOver = True
 
         if self.player.isOnFloor:
