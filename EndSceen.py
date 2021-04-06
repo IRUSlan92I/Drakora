@@ -1,6 +1,7 @@
 """
-Enemy entity class
+Endscreen class
 """
+
 
 import pickle
 import pygame
@@ -26,6 +27,16 @@ class EndSceen():
         self.saveFileName = 'leaders.lb'
 
 
+    def getScorePosition(self, score):
+        counter = 1
+        for i in self.sortedDataByScores:
+            if i[1][1] < score:
+                return counter
+            else:
+                counter += 1
+        return counter
+
+
     def newEndScreen(self):
         self.endScreenTimer = 0;
         self.playerName = 'Player'
@@ -36,23 +47,49 @@ class EndSceen():
 
         self.isBackButton = True
 
-        try:
-            fileWithData = open(self.saveFileName, 'rb')
-        except IOError as e:
-            pass
-        else:
-            listPlayers = pickle.load(fileWithData)
+        self.loadResults()
 
-            for line in listPlayers:
-                if (len(line) == 3):
-                    self.data.append (
-                        [line[0][:10], int(line[1]), float(line[2])]
+
+    def loadResults(self):
+        with open(self.saveFileName, 'rb') as file:
+            for line in file:
+                try:
+                    name, score, time = with line.split()
+                    self.data.append(
+                        [name[:10].decode('ascii'), int(score), float(time)]
                     )
+                except Exception:
+                    continue
 
-            fileWithData.close()
+            file.close()
 
             self.sortedDataByScores = sorted(enumerate(self.data),
                                             key=lambda i: i[1][1], reverse=True)
+
+
+    def saveResults(self):
+        newData = []
+
+        # try:
+        #     fileWithData = open(self.saveFileName, 'rb')
+        # except IOError as e:
+        #     pass
+        # else:
+        #     tmpData = pickle.load(fileWithData)
+        #     fileWithData.close()
+        #
+        #     for line in tmpData:
+        #         if len(line.split()) == 3:
+        #             if not (line.split()[0].rstrip() == self.playerName.rstrip()):
+        #                 newData.append(line)
+        #
+        # newData.append(('{0} {1} {2:.2f}\n'.format(self.playerName,
+        #                 self.game.getScore(), self.game.getTime())))
+        #
+        # with open (self.saveFileName, 'wb') as fileWithData:
+        #     pickle.dump(newData, fileWithData)
+        #
+        # fileWithData.close()
 
 
     def renderText(self, text, font, color, center, backColor=None):
@@ -106,16 +143,6 @@ class EndSceen():
                         ),
                         self.fontLeaderBoard, (255, 255, 255),
                         (self.game.getScreenWidth()/2,100 + (number + 1)*50))
-
-
-    def getScorePosition(self, score):
-        counter = 1
-        for i in self.sortedDataByScores:
-            if i[1][1] < score:
-                return counter
-            else:
-                counter += 1
-        return counter
 
 
     def render(self):
@@ -206,27 +233,3 @@ class EndSceen():
                     self.playerName += pygame.key.name(event.key).upper()
                 else:
                     self.playerName += pygame.key.name(event.key).lower()
-
-
-    def saveResults(self):
-        newData = []
-
-        try:
-            fileWithData = open(self.saveFileName, 'rb')
-        except IOError as e:
-            pass
-        else:
-            tmpData = pickle.load(fileWithData)
-            fileWithData.close()
-
-            for line in tmpData:
-                if len(line.split()) == 3:
-                    if not (line.split()[0].rstrip() == self.playerName.rstrip()):
-                        newData.append(line)
-
-        newData.append(('{0} {1} {2:.2f}\n'.format(self.playerName,
-                        self.game.getScore(), self.game.getTime())))
-
-        with open (self.saveFileName, 'wb') as fileWithData:
-            pickle.dump(newData, fileWithData)
-        fileWithData.close()
