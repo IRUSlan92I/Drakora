@@ -252,6 +252,7 @@ class Drakora():
 
             if not pygame.sprite.spritecollideany(self.player, self.floors):
                 self.player.isOnFloor = False
+                self.player.rect.y -= 1
         else:
             if pygame.sprite.spritecollideany(self.player, self.floors):
                 self.player.isOnFloor = True
