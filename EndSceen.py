@@ -55,24 +55,22 @@ class EndSceen():
     def getResultsFromFile(self):
         data = []
 
-        with open(self.saveFileName, 'rb') as file:
-            for line in file:
-                try:
-                    line = self.shiftRight(line).decode('ascii')
-                    name, score, time = line.split()
-                    data.append(
-                        [name[:10], int(score), float(time)]
-                    )
-                except Exception:
-                    continue
+        try:
+            with open(self.saveFileName, 'rb') as file:
+                fileData = self.shiftRight(file.read()).decode('utf-8')
+                for line in fileData.split('\n'):
+                        name, score, time = line.split('\t')
+                        data.append(
+                            [name[:10], int(score), float(time)]
+                        )
+        except Exception:
+            pass
+
         return data
 
 
     def saveResults(self):
         data = self.getResultsFromFile()
-
-        # data.append(('{0} {1} {2:.2f}\n'.format(self.playerName,
-        #                 self.game.getScore(), self.game.getTime())))
 
         data.append(
             [self.playerName[:10],
@@ -80,19 +78,26 @@ class EndSceen():
             float(self.game.getTime())]
         )
 
-        with open(self.saveFileName, 'wb') as file:
-            for entry in data:
-                string = '{} {} {}\n'.format(*entry)
-                arr = string.encode('ascii')
-                file.write(self.shiftLeft(arr))
+        try:
+            with open(self.saveFileName, 'wb') as file:
+                for entry in data:
+                    string = '{}\t{}\t{}\n'.format(*entry)
+                    arr = string.encode('utf-8')
+                    file.write(self.shiftLeft(arr))
+        except Exception:
+            pass
+
+
+    def shift(self, c, offset):
+        return (c + offset)%0x100
 
 
     def shiftLeft(self, arr):
-        return bytearray([x if x == 10 else x-32 for x in arr])
+        return bytearray([self.shift(x, -77) for x in arr])
 
 
     def shiftRight(self, arr):
-        return bytearray([x if x == 10 else x+32 for x in arr])
+        return bytearray([self.shift(x, +77) for x in arr])
 
 
     def renderText(self, text, font, color, center, backColor=None):
@@ -190,7 +195,7 @@ class EndSceen():
                         ),
                         self.fontLeaderBoard, (255, 255, 255),
                         (self.game.getScreenWidth()/2, 100 +
-                            (5 + 2)*50), (200, 20, 20))
+                            (5 + 2)*50), (208, 85, 52))
 
             self.renderText(' {0:^30} '.format('Missing player name'),
                         self.fontError, (255, 255, 255),

@@ -221,10 +221,6 @@ class Drakora():
                             self.fontGodmode, (255, 255, 255),
                             (self.getScreenWidth()/2,60))
 
-        self.renderText('%f'%self.player.speed,
-                            self.fontGodmode, (255, 255, 255),
-                            (self.getScreenWidth()/2,60))
-
         pygame.display.flip()
 
 
@@ -240,6 +236,7 @@ class Drakora():
         else:
             return 300
 
+
     def collideCheck(self):
         for enemy in self.enemies:
             if pygame.sprite.groupcollide(self.player.getCollisionBoxes(), enemy.getCollisionBoxes(), None, None):
@@ -249,10 +246,9 @@ class Drakora():
 
         if self.player.isOnFloor:
             self.player.rect.y += 1
-
             if not pygame.sprite.spritecollideany(self.player, self.floors):
                 self.player.isOnFloor = False
-                self.player.rect.y -= 1
+            self.player.rect.y -= 1
         else:
             if pygame.sprite.spritecollideany(self.player, self.floors):
                 self.player.isOnFloor = True

@@ -110,7 +110,7 @@ class Player(pygame.sprite.Sprite):
         self.collisionBoxes.add(CollisionBox(-10, 5, 30, 20, self.rect.center))
         self.collisionBoxes.add(CollisionBox(0, 35, 25, 40, self.rect.center))
 
-        self.__doubleY = float(self.rect.x)
+        self.__doubleY = float(self.rect.y)
 
 
     def getCollisionBoxes(self):
@@ -168,18 +168,18 @@ class Player(pygame.sprite.Sprite):
         gameSpeed = self.mainGameClass.getGameSpeed()
 
         if self.isJumping:
-            if gameSpeed <= 2:     maxHoverCount = 30
-            elif gameSpeed <= 4:   maxHoverCount = 23
-            elif gameSpeed <= 8:   maxHoverCount = 16
+            if gameSpeed <= 2:     maxHoverCount = 40
+            elif gameSpeed <= 4:   maxHoverCount = 29
+            elif gameSpeed <= 8:   maxHoverCount = 20
             elif gameSpeed <= 16:  maxHoverCount = 9
             elif gameSpeed <= 32:  maxHoverCount = 5
             elif gameSpeed <= 64:  maxHoverCount = 2
-            else:                       maxHoverCount = 1
+            else:                  maxHoverCount = 1
 
             if self.isDownJump and self.hoverCount < maxHoverCount:
                 self.speed -= gameSpeed/8 * (
-                    (math.cos(2*math.pi*self.hoverCount/
-                                        (2*maxHoverCount))+1)/2.5 + 0.2
+                    (math.cos(2*math.pi*self.hoverCount/(2*maxHoverCount))
+                     + 1)/2.5 + 0.2
                 )
                 self.hoverCount += 1
             else:
