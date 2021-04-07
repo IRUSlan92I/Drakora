@@ -88,11 +88,11 @@ class EndSceen():
 
 
     def shiftLeft(self, arr):
-        return bytearray([lambda x: x if x == 10 else x-32 for x in arr])
+        return bytearray([x if x == 10 else x-32 for x in arr])
 
 
     def shiftRight(self, arr):
-        return bytearray([lambda x: x if x == 10 else x+32 for x in arr])
+        return bytearray([x if x == 10 else x+32 for x in arr])
 
 
     def renderText(self, text, font, color, center, backColor=None):
