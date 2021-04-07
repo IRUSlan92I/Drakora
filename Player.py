@@ -142,6 +142,9 @@ class Player(pygame.sprite.Sprite):
             elif event.key in self.buttonsJump:
                 self.isDownJump = False
 
+    def calcMaxHoverCount(self, speed):
+        return 26.57 - 6.23*math.log(speed) + 23.82*(1/speed) + 0.086*speed
+
 
     def update(self):
         self.updateCount += 1
@@ -168,21 +171,7 @@ class Player(pygame.sprite.Sprite):
         gameSpeed = self.mainGameClass.getGameSpeed()
 
         if self.isJumping:
-            if gameSpeed <= 2:     maxHoverCount = 40
-            elif gameSpeed <= 4:   maxHoverCount = 28
-            elif gameSpeed <= 5:   maxHoverCount = 23
-            elif gameSpeed <= 7:   maxHoverCount = 20
-            elif gameSpeed <= 8:   maxHoverCount = 18
-            elif gameSpeed <= 10:  maxHoverCount = 16
-            elif gameSpeed <= 11:  maxHoverCount = 15
-            elif gameSpeed <= 13:  maxHoverCount = 14
-            elif gameSpeed <= 15:  maxHoverCount = 13
-            elif gameSpeed <= 17:  maxHoverCount = 12
-            elif gameSpeed <= 22:  maxHoverCount = 11
-            elif gameSpeed <= 26:  maxHoverCount = 10
-            elif gameSpeed <= 32:  maxHoverCount = 9
-            elif gameSpeed <= 43:  maxHoverCount = 8
-            else:                  maxHoverCount = 7
+            maxHoverCount = self.calcMaxHoverCount(gameSpeed)
 
             if self.isDownJump and self.hoverCount < maxHoverCount:
                 self.speed -= gameSpeed/8 * (
