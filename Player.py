@@ -169,12 +169,20 @@ class Player(pygame.sprite.Sprite):
 
         if self.isJumping:
             if gameSpeed <= 2:     maxHoverCount = 40
-            elif gameSpeed <= 4:   maxHoverCount = 29
-            elif gameSpeed <= 8:   maxHoverCount = 20
-            elif gameSpeed <= 16:  maxHoverCount = 9
-            elif gameSpeed <= 32:  maxHoverCount = 5
-            elif gameSpeed <= 64:  maxHoverCount = 2
-            else:                  maxHoverCount = 1
+            elif gameSpeed <= 4:   maxHoverCount = 28
+            elif gameSpeed <= 5:   maxHoverCount = 23
+            elif gameSpeed <= 7:   maxHoverCount = 20
+            elif gameSpeed <= 8:   maxHoverCount = 18
+            elif gameSpeed <= 10:  maxHoverCount = 16
+            elif gameSpeed <= 11:  maxHoverCount = 15
+            elif gameSpeed <= 13:  maxHoverCount = 14
+            elif gameSpeed <= 15:  maxHoverCount = 13
+            elif gameSpeed <= 17:  maxHoverCount = 12
+            elif gameSpeed <= 22:  maxHoverCount = 11
+            elif gameSpeed <= 26:  maxHoverCount = 10
+            elif gameSpeed <= 32:  maxHoverCount = 9
+            elif gameSpeed <= 43:  maxHoverCount = 8
+            else:                  maxHoverCount = 7
 
             if self.isDownJump and self.hoverCount < maxHoverCount:
                 self.speed -= gameSpeed/8 * (
