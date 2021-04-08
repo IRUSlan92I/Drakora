@@ -17,8 +17,10 @@ class CollisionBox(pygame.sprite.Sprite):
         self.rect.x += self.offset[0]
         self.rect.y += self.offset[1]
 
+
     def setY(self, y):
         self.rect.y = y + self.offset[1]
+
 
     def setX(self, x):
         self.rect.x = x + self.offset[0]

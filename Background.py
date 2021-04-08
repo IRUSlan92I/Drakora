@@ -28,6 +28,7 @@ class Background():
     for image in backgroundImages:
         image.set_colorkey((255,0,255))
 
+
     def __init__(self, mainGameClass):
         pygame.sprite.Sprite.__init__(self)
 
