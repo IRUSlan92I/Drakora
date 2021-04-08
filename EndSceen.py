@@ -3,7 +3,6 @@ Endscreen class
 """
 
 
-import pickle
 import pygame
 
 
