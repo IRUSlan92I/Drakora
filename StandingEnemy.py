@@ -147,7 +147,6 @@ class StandingEnemy(Enemy):
             for image in array:
                 image.set_colorkey((255,0,255))
 
-
         self.subtype = random.randint(0, len(StandingEnemy.images) - 1)
 
         self.image = random.choice(StandingEnemy.images[self.subtype])

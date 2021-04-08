@@ -145,7 +145,6 @@ class EndSceen():
                             self.fontLeaderBoard, (255, 255, 255),
                             (self.game.getScreenWidth()/2,100 + j*50))
 
-
         self.renderText(' {0:>3} {1:^10} {2:>6} {3:>8} '.format(
                             '..','.....', '..', '.....'
                         ),

@@ -58,6 +58,7 @@ class Drakora():
             self.speedUp()
             self.speedUpLabelCD = self.targetFps
 
+
     def getFont(self):
         return self.font
 
