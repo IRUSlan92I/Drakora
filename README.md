@@ -8,3 +8,7 @@ This game is a variation of Chrome Dino.
 Hit `Space` or `Up` to jump over obstacles. Crouch by `Down`.
 Press `P` to pause the game, `Enter` to new run.
 If you get bored playing this - `F10` may help you.
+
+To launch it you must install Python3 and Pygame
+https://www.python.org/downloads/
+https://www.pygame.org/wiki/GettingStarted
