@@ -10,9 +10,9 @@ from CollisionBox import CollisionBox
 
 
 class Player(pygame.sprite.Sprite):
-    imgDir = os.path.join(os.path.dirname(__file__), 'data')
+    dataDir = os.path.join(os.path.dirname(__file__), 'data')
     playerImage = pygame.image.load(
-        os.path.join(imgDir, 'player.png')
+        os.path.join(dataDir, 'player.png')
     )#.convert()
     walkImages = (
         pygame.transform.scale(
@@ -77,6 +77,8 @@ class Player(pygame.sprite.Sprite):
     for array in (walkImages, upImages, downImages, crouchImages):
         for image in array:
             image.set_colorkey((255,0,255))
+
+    jumpSound = pygame.mixer.Sound(os.path.join(dataDir, 'jump.wav'))
 
 
     def __init__(self, mainGameClass):
@@ -173,6 +175,9 @@ class Player(pygame.sprite.Sprite):
         gameSpeed = self.mainGameClass.getGameSpeed()
 
         if self.isJumping:
+            if self.hoverCount == 0:
+                Player.jumpSound.play()
+
             maxHoverCount = self.calcMaxHoverCount(gameSpeed)
 
             if self.isDownJump and self.hoverCount < maxHoverCount:

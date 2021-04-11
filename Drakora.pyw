@@ -9,6 +9,10 @@ import os
 
 from collections import deque
 
+
+pygame.mixer.init()
+
+
 from Background import Background
 from Player import Player
 from StandingEnemy import StandingEnemy
