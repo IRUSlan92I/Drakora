@@ -25,6 +25,9 @@ class EndSceen():
         self.game = mainGameClass
         self.saveFileName = 'leaders.lb'
 
+        self.maxNumberNameLetters = 13
+        self.fstr = ' {0:3d} {1:^'+str(self.maxNumberNameLetters)+'} {2:6d} {3:8.2f} ';
+
 
     def getScorePosition(self, score):
         counter = 1
@@ -60,7 +63,7 @@ class EndSceen():
                 for line in fileData.split('\n'):
                         name, score, time = line.split('\t')
                         data.append(
-                            [name[:10], int(score), float(time)]
+                            [name[:self.maxNumberNameLetters], int(score), float(time)]
                         )
         except Exception:
             pass
@@ -72,7 +75,7 @@ class EndSceen():
         data = self.getResultsFromFile()
 
         data.append(
-            [self.playerName[:10],
+            [self.playerName[:self.maxNumberNameLetters],
             int(self.game.getScore()),
             float(self.game.getTime())]
         )
@@ -112,8 +115,8 @@ class EndSceen():
 
         for i in [i[0] for i in self.sortedDataByScores[:number]]:
             if (self.game.getScore() > self.data[i][1] and not placeFlag):
-                self.renderText('>{0:3} {1:^10} {2:6d} {3:8.2f} '.format(j,
-                                    self.playerName[:10], self.game.getScore(),
+                self.renderText(('>'+self.fstr).format(j,
+                                    self.playerName[:self.maxNumberNameLetters], self.game.getScore(),
                                     self.game.getTime()
                                 ),
                                 self.fontLeaderBoard, (255, 255, 255),
@@ -124,7 +127,7 @@ class EndSceen():
             if (j > number):
                 break
 
-            formatDataForOnePlayer = ' {0:3} {1:^10} {2:6d} {3:8.2f} '.format(
+            formatDataForOnePlayer = (' '+self.fstr).format(
                                                             j, *self.data[i])
 
             self.renderText(formatDataForOnePlayer,
@@ -137,14 +140,15 @@ class EndSceen():
                 break
 
         if not placeFlag and j <= number:
-            self.renderText('>{0:3} {1:^10} {2:6d} {3:8.2f} '.format(
-                                j, self.playerName[:10], self.game.getScore(),
+            self.renderText(('>'+self.fstr).format(
+                                j, self.playerName[:self.maxNumberNameLetters], self.game.getScore(),
                                 self.game.getTime()
                             ),
                             self.fontLeaderBoard, (255, 255, 255),
                             (self.game.getScreenWidth()/2,100 + j*50))
 
-        self.renderText(' {0:>3} {1:^10} {2:>6} {3:>8} '.format(
+        tmpStr = '  {0:>3} {1:^'+str(self.maxNumberNameLetters)+'} {2:>6} {3:>8} '
+        self.renderText(tmpStr.format(
                             '..','.....', '..', '.....'
                         ),
                         self.fontLeaderBoard, (255, 255, 255),
@@ -176,26 +180,27 @@ class EndSceen():
         self.endScreenTimer += 1
 
         if len(self.playerName) > 0:
-            self.renderText(' {0:3d} {1:^10} {2:6d} {3:8.2f} '.format(
+            self.renderText((' '+self.fstr).format(
                             self.getScorePosition(self.game.getScore()),
-                            self.playerName[:10] + (cursorChar
-                                if len(self.playerName) < 10 else ''),
+                            self.playerName[:self.maxNumberNameLetters] + (cursorChar
+                                if len(self.playerName) < self.maxNumberNameLetters else ''),
                             self.game.getScore(), self.game.getTime()
                         ),
                         self.fontLeaderBoard, (255, 255, 255),
                         (self.game.getScreenWidth()/2,100 + (5 + 2)*50))
         else:
-            self.renderText(' {0:3d} {1:^10} {2:6d} {3:8.2f} '.format(
+            self.renderText((' '+self.fstr).format(
                             self.getScorePosition(self.game.getScore()),
-                            self.playerName[:10] + (cursorChar
-                                if len(self.playerName) < 10 else ''),
+                            self.playerName[:self.maxNumberNameLetters] + (cursorChar
+                                if len(self.playerName) < self.maxNumberNameLetters else ''),
                             self.game.getScore(), self.game.getTime()
                         ),
                         self.fontLeaderBoard, (255, 255, 255),
                         (self.game.getScreenWidth()/2, 100 +
                             (5 + 2)*50), (208, 85, 52))
 
-            self.renderText(' {0:^30} '.format('Missing player name'),
+            tmpStr = '{0:^'+str(len(self.fstr))+'}'
+            self.renderText(tmpStr.format('Missing player name'),
                         self.fontError, (255, 255, 255),
                         (self.game.getScreenWidth()/2,100 + (5 + 2)*50 + 25))
 
@@ -234,7 +239,7 @@ class EndSceen():
 
             elif len(
                 pygame.key.name(event.key)
-            ) == 1 and len(self.playerName) < 10:
+            ) == 1 and len(self.playerName) < self.maxNumberNameLetters:
                 if pygame.key.get_mods() & pygame.KMOD_LSHIFT:
                     self.playerName += pygame.key.name(event.key).upper()
                 else:

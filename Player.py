@@ -144,8 +144,7 @@ class Player(pygame.sprite.Sprite):
 
 
     def calcMaxHoverCount(self, speed):
-        return int(round(4.76 + 127.5*(1/speed) -
-                                    239.45*(speed**-2) + 191.29*(speed**-3)))
+        return round(-0.44 + 0.079*math.log(speed) + 49.42 * (1/math.sqrt(speed)))
 
 
     def update(self):
