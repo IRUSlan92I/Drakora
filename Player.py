@@ -78,11 +78,11 @@ class Player(pygame.sprite.Sprite):
         for image in array:
             image.set_colorkey((255,0,255))
 
-    def getCollisionBoxes(self):
-        return self.collisionBoxes
 
-    def __init__(self):
+    def __init__(self, mainGameClass):
         pygame.sprite.Sprite.__init__(self)
+
+        self.mainGameClass = mainGameClass
 
         self.currentWalkImage = 0
         self.currentUpImage = 0
@@ -102,17 +102,19 @@ class Player(pygame.sprite.Sprite):
         self.isDownCrouch = False
         self.buttonsJump = (pygame.K_UP, pygame.K_SPACE,)
         self.buttonsCrouch = (pygame.K_DOWN,)
-        self.gameSpeed = 1
         self.updateCount = 0
 
         self.collisionBoxes = pygame.sprite.Group()
 
-        collision = CollisionBox(0, 20, 60, 20, self.rect.center)
-        self.collisionBoxes.add(collision)
-        collision = CollisionBox(-10, 5, 30, 20, self.rect.center)
-        self.collisionBoxes.add(collision)
-        collision = CollisionBox(0, 35, 25, 40, self.rect.center)
-        self.collisionBoxes.add(collision)
+        self.collisionBoxes.add(CollisionBox(0, 20, 60, 20, self.rect.center))
+        self.collisionBoxes.add(CollisionBox(-10, 5, 30, 20, self.rect.center))
+        self.collisionBoxes.add(CollisionBox(0, 35, 25, 40, self.rect.center))
+
+        self.__doubleY = float(self.rect.y)
+
+
+    def getCollisionBoxes(self):
+        return self.collisionBoxes
 
 
     def crouch(self):
@@ -125,10 +127,7 @@ class Player(pygame.sprite.Sprite):
         if self.isCrouching:
             self.isCrouching = False
             self.rect = self.rect.inflate(0, 32)
-            
 
-    def updateSpeed(self, newGameSpeed):
-        self.gameSpeed = newGameSpeed
 
     def control(self, event):
         if event.type == pygame.KEYDOWN:
@@ -144,6 +143,15 @@ class Player(pygame.sprite.Sprite):
                 self.isDownJump = False
 
 
+    def calcMaxHoverCount(self, speed):
+        return round(-0.44 + 0.079*math.log(speed) + 49.42 * (1/math.sqrt(speed)))
+        
+
+    def moveDown(self, value):
+        self.__doubleY += value
+        self.rect.y = self.__doubleY
+
+
     def update(self):
         self.updateCount += 1
 
@@ -151,7 +159,7 @@ class Player(pygame.sprite.Sprite):
             self.hoverCount = 0
 
         if self.isOnFloor:
-            self.speed = 0
+            self.speed = 0.0
 
             if self.isDownJump:
                 self.isJumping = True
@@ -166,32 +174,28 @@ class Player(pygame.sprite.Sprite):
             elif self.isCrouching:
                     self.standup()
 
+        gameSpeed = self.mainGameClass.getGameSpeed()
+
         if self.isJumping:
-            if self.gameSpeed <= 2:     maxHoverCount = 30
-            elif self.gameSpeed <= 4:   maxHoverCount = 23
-            elif self.gameSpeed <= 8:   maxHoverCount = 16
-            elif self.gameSpeed <= 16:  maxHoverCount = 9
-            elif self.gameSpeed <= 32:  maxHoverCount = 5
-            elif self.gameSpeed <= 64:  maxHoverCount = 2
-            else:                       maxHoverCount = 1
+            maxHoverCount = self.calcMaxHoverCount(gameSpeed)
 
             if self.isDownJump and self.hoverCount < maxHoverCount:
-                self.speed -= self.gameSpeed/8 * (
-                    (math.cos(2*math.pi*self.hoverCount/
-                                        (2*maxHoverCount))+1)/2.5 + 0.2
+                self.speed -= gameSpeed/8 * (
+                    (math.cos(2*math.pi*self.hoverCount/(2*maxHoverCount))
+                     + 1)/2.5 + 0.2
                 )
                 self.hoverCount += 1
             else:
                 self.isJumping = False
         else:
-            self.speed += 0.07 * self.gameSpeed
+            self.speed += 0.07 * gameSpeed
 
-        self.rect.y += self.speed
+        self.moveDown(self.speed)
 
-        for i in self.collisionBoxes:
-            i.setY(self.rect.y)
+        for collisionBox in self.collisionBoxes:
+            collisionBox.setY(self.rect.y)
 
-        if self.updateCount >= 22 - math.log2(self.gameSpeed) * 2:
+        if self.updateCount >= 22 - math.log2(gameSpeed) * 2:
             if self.isOnFloor:
                 if self.isCrouching:
                     self.currentCrouchImage += 1

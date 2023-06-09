@@ -17,7 +17,6 @@ from Cloud import Cloud
 from Floor import Floor
 from EndSceen import EndSceen
 
-
 class Drakora():
     def getGameSpeed(self):
         return self.__gameSpeed
@@ -40,15 +39,15 @@ class Drakora():
 
 
     def speedUp(self):
-        self.__gameSpeed *= 2
+        self.__gameSpeed += 1.5
 
 
     def speedDown(self):
-        if self.__gameSpeed > 2: self.__gameSpeed /= 2
+        if self.__gameSpeed > 1.5: self.__gameSpeed -= 1.5
 
 
     def speedReset(self):
-        self.__gameSpeed = 2
+        self.__gameSpeed = 1.5
 
 
     def addScore(self, score):
@@ -57,6 +56,7 @@ class Drakora():
         if self.__score%self.speedUpRate == 0:
             self.speedUp()
             self.speedUpLabelCD = self.targetFps
+
 
     def getFont(self):
         return self.font
@@ -78,7 +78,7 @@ class Drakora():
 
         if self.player: self.player.kill()
 
-        self.player = Player()
+        self.player = Player(self)
         self.players.add(self.player)
 
         self.__score = 0
@@ -236,6 +236,7 @@ class Drakora():
         else:
             return 300
 
+
     def collideCheck(self):
         for enemy in self.enemies:
             if pygame.sprite.groupcollide(self.player.getCollisionBoxes(), enemy.getCollisionBoxes(), None, None):
@@ -247,13 +248,14 @@ class Drakora():
             self.player.rect.y += 1
             if not pygame.sprite.spritecollideany(self.player, self.floors):
                 self.player.isOnFloor = False
+            self.player.rect.y -= 1
         else:
             if pygame.sprite.spritecollideany(self.player, self.floors):
                 self.player.isOnFloor = True
 
         if self.player.isOnFloor:
             while pygame.sprite.spritecollideany(self.player, self.floors):
-                self.player.rect.y -= 1
+                self.player.moveDown(-0.1)
 
 
     def doCheats(self):
@@ -278,8 +280,6 @@ class Drakora():
 
 
     def logic(self):
-        self.player.updateSpeed(self.__gameSpeed)
-
         for event in pygame.event.get():
             self.player.control(event)
             self.endSceen.control(event)

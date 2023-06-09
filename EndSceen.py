@@ -1,11 +1,9 @@
 """
-Enemy entity class
+Endscreen class
 """
 
-import pickle
+
 import pygame
-import hashlib
-from cryptography.fernet import Fernet
 
 
 class EndSceen():
@@ -24,11 +22,22 @@ class EndSceen():
             mainGameClass.getFont(), 15
         )
 
-        key = b'Lh2b2rragfwD8QR4VU-V2TmSuio4yp-WbFwo4tcoyzs='
-        self.code = Fernet(key)
-
         self.game = mainGameClass
         self.saveFileName = 'leaders.lb'
+
+        self.maxNumberNameLetters = 13
+        self.fstr = ' {0:3d} {1:^'+str(self.maxNumberNameLetters)+'} {2:6d} {3:8.2f} ';
+
+
+    def getScorePosition(self, score):
+        counter = 1
+        for i in self.sortedDataByScores:
+            if i[1][1] < score:
+                return counter
+            else:
+                counter += 1
+        return counter
+
 
     def newEndScreen(self):
         self.endScreenTimer = 0;
@@ -40,25 +49,57 @@ class EndSceen():
 
         self.isBackButton = True
 
+        self.data = self.getResultsFromFile()
+        self.sortedDataByScores = sorted(enumerate(self.data),
+                                        key=lambda i: i[1][1], reverse=True)
+
+
+    def getResultsFromFile(self):
+        data = []
+
         try:
-            fileWithData = open(self.saveFileName, 'rb')
-        except IOError as e:
+            with open(self.saveFileName, 'rb') as file:
+                fileData = self.shiftRight(file.read()).decode('utf-8')
+                for line in fileData.split('\n'):
+                        name, score, time = line.split('\t')
+                        data.append(
+                            [name[:self.maxNumberNameLetters], int(score), float(time)]
+                        )
+        except Exception:
             pass
-        else:
-            listPlayers = pickle.load(fileWithData)
 
-            for line in listPlayers:
-                oneStr = self.code.decrypt(line).decode().split()
+        return data
 
-                if (len(oneStr) == 3):
-                    self.data.append(
-                        [oneStr[0][:10], int(oneStr[1]), float(oneStr[2])]
-                    )
 
-            fileWithData.close()
+    def saveResults(self):
+        data = self.getResultsFromFile()
 
-            self.sortedDataByScores = sorted(enumerate(self.data),
-                                            key=lambda i: i[1][1], reverse=True)
+        data.append(
+            [self.playerName[:self.maxNumberNameLetters],
+            int(self.game.getScore()),
+            float(self.game.getTime())]
+        )
+
+        try:
+            with open(self.saveFileName, 'wb') as file:
+                for entry in data:
+                    string = '{}\t{}\t{}\n'.format(*entry)
+                    arr = string.encode('utf-8')
+                    file.write(self.shiftLeft(arr))
+        except Exception:
+            pass
+
+
+    def shift(self, c, offset):
+        return (c + offset)%0x100
+
+
+    def shiftLeft(self, arr):
+        return bytearray([self.shift(x, -77) for x in arr])
+
+
+    def shiftRight(self, arr):
+        return bytearray([self.shift(x, +77) for x in arr])
 
 
     def renderText(self, text, font, color, center, backColor=None):
@@ -67,14 +108,15 @@ class EndSceen():
         rect.center = center
         self.game.screen.blit(render, rect)
 
+
     def drawTableLB(self, number):
         j = 1
         placeFlag = False
 
         for i in [i[0] for i in self.sortedDataByScores[:number]]:
             if (self.game.getScore() > self.data[i][1] and not placeFlag):
-                self.renderText('>{0:3} {1:^10} {2:6d} {3:8.2f} '.format(j,
-                                    self.playerName[:10], self.game.getScore(),
+                self.renderText(('>'+self.fstr).format(j,
+                                    self.playerName[:self.maxNumberNameLetters], self.game.getScore(),
                                     self.game.getTime()
                                 ),
                                 self.fontLeaderBoard, (255, 255, 255),
@@ -85,7 +127,7 @@ class EndSceen():
             if (j > number):
                 break
 
-            formatDataForOnePlayer = ' {0:3} {1:^10} {2:6d} {3:8.2f} '.format(
+            formatDataForOnePlayer = (' '+self.fstr).format(
                                                             j, *self.data[i])
 
             self.renderText(formatDataForOnePlayer,
@@ -98,28 +140,19 @@ class EndSceen():
                 break
 
         if not placeFlag and j <= number:
-            self.renderText('>{0:3} {1:^10} {2:6d} {3:8.2f} '.format(
-                                j, self.playerName[:10], self.game.getScore(),
+            self.renderText(('>'+self.fstr).format(
+                                j, self.playerName[:self.maxNumberNameLetters], self.game.getScore(),
                                 self.game.getTime()
                             ),
                             self.fontLeaderBoard, (255, 255, 255),
                             (self.game.getScreenWidth()/2,100 + j*50))
 
-
-        self.renderText(' {0:>3} {1:^10} {2:>6} {3:>8} '.format(
+        tmpStr = '  {0:>3} {1:^'+str(self.maxNumberNameLetters)+'} {2:>6} {3:>8} '
+        self.renderText(tmpStr.format(
                             '..','.....', '..', '.....'
                         ),
                         self.fontLeaderBoard, (255, 255, 255),
                         (self.game.getScreenWidth()/2,100 + (number + 1)*50))
-
-    def getScorePosition(self, score):
-        counter = 1
-        for i in self.sortedDataByScores:
-            if i[1][1] < score:
-                return counter
-            else:
-                counter += 1
-        return counter
 
 
     def render(self):
@@ -147,26 +180,27 @@ class EndSceen():
         self.endScreenTimer += 1
 
         if len(self.playerName) > 0:
-            self.renderText(' {0:3d} {1:^10} {2:6d} {3:8.2f} '.format(
+            self.renderText((' '+self.fstr).format(
                             self.getScorePosition(self.game.getScore()),
-                            self.playerName[:10] + (cursorChar
-                                if len(self.playerName) < 10 else ''),
+                            self.playerName[:self.maxNumberNameLetters] + (cursorChar
+                                if len(self.playerName) < self.maxNumberNameLetters else ''),
                             self.game.getScore(), self.game.getTime()
                         ),
                         self.fontLeaderBoard, (255, 255, 255),
                         (self.game.getScreenWidth()/2,100 + (5 + 2)*50))
         else:
-            self.renderText(' {0:3d} {1:^10} {2:6d} {3:8.2f} '.format(
+            self.renderText((' '+self.fstr).format(
                             self.getScorePosition(self.game.getScore()),
-                            self.playerName[:10] + (cursorChar
-                                if len(self.playerName) < 10 else ''),
+                            self.playerName[:self.maxNumberNameLetters] + (cursorChar
+                                if len(self.playerName) < self.maxNumberNameLetters else ''),
                             self.game.getScore(), self.game.getTime()
                         ),
                         self.fontLeaderBoard, (255, 255, 255),
                         (self.game.getScreenWidth()/2, 100 +
-                            (5 + 2)*50), (200, 20, 20))
+                            (5 + 2)*50), (208, 85, 52))
 
-            self.renderText(' {0:^30} '.format('Missing player name'),
+            tmpStr = '{0:^'+str(len(self.fstr))+'}'
+            self.renderText(tmpStr.format('Missing player name'),
                         self.fontError, (255, 255, 255),
                         (self.game.getScreenWidth()/2,100 + (5 + 2)*50 + 25))
 
@@ -181,6 +215,7 @@ class EndSceen():
                             self.fontLeaderBoardActive, (255, 255, 255),
                         (self.game.getScreenWidth()/2 + 100,
                             self.game.getScreenHeight() - 80))
+
 
     def control(self, event):
         if event.type == pygame.KEYDOWN and self.game.isGameOver:
@@ -204,32 +239,8 @@ class EndSceen():
 
             elif len(
                 pygame.key.name(event.key)
-            ) == 1 and len(self.playerName) < 10:
+            ) == 1 and len(self.playerName) < self.maxNumberNameLetters:
                 if pygame.key.get_mods() & pygame.KMOD_LSHIFT:
                     self.playerName += pygame.key.name(event.key).upper()
                 else:
                     self.playerName += pygame.key.name(event.key).lower()
-
-    def saveResults(self):
-        newData = []
-
-        try:
-            fileWithData = open(self.saveFileName, 'rb')
-        except IOError as e:
-            pass
-        else:
-            tmpData = pickle.load(fileWithData)
-            fileWithData.close()
-
-            for line in tmpData:
-                oneStr = self.code.decrypt(line).decode()
-                if len(oneStr.split()) == 3:
-                    if not (oneStr.split()[0].rstrip() == self.playerName.rstrip()):
-                        newData.append(line)
-
-        newData.append(self.code.encrypt(('{0} {1} {2:.2f}\n'.format(self.playerName,
-                        self.game.getScore(), self.game.getTime())).encode()))
-
-        with open (self.saveFileName, 'wb') as fileWithData:
-            pickle.dump(newData, fileWithData)
-        fileWithData.close()

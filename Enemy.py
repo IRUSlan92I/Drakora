@@ -11,7 +11,7 @@ class Enemy(pygame.sprite.Sprite):
     def __init__(self, mainGameClass):
         pygame.sprite.Sprite.__init__(self)
 
-        self.thisGame = mainGameClass
+        self.mainGameClass = mainGameClass
 
         self.height = (mainGameClass.getScreenHeight()
                         - mainGameClass.getFloorHeight())
@@ -26,9 +26,10 @@ class Enemy(pygame.sprite.Sprite):
     def update(self):
         if (self.rect.x < -self.rect.width):
             self.kill()
-            self.thisGame.addScore(1)
+            self.mainGameClass.addScore(1)
+        else:
+            self.doubleX -= self.speed
+            self.rect.x = self.doubleX
 
-        self.rect.x -= self.speed
-
-        for i in self.collisionBoxes:
-            i.setX(self.rect.x)
+            for i in self.collisionBoxes:
+                i.setX(self.rect.x)

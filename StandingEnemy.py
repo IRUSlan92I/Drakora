@@ -147,7 +147,6 @@ class StandingEnemy(Enemy):
             for image in array:
                 image.set_colorkey((255,0,255))
 
-
         self.subtype = random.randint(0, len(StandingEnemy.images) - 1)
 
         self.image = random.choice(StandingEnemy.images[self.subtype])
@@ -158,7 +157,10 @@ class StandingEnemy(Enemy):
         self.rect.center = (mainGameClass.getScreenWidth() + self.rect.width,
                             self.height)
 
-        collision = CollisionBox(9, 3, self.rect.w - 18, self.rect.h - 6, self.rect.center)
+        self.doubleX = float(self.rect.x)
+
+        collision = CollisionBox(9, 3, self.rect.w - 18,
+                                self.rect.h - 6, self.rect.center)
         self.collisionBoxes.add(collision)
 
-        self.speed = self.thisGame.getGameSpeed()
+        self.speed = self.mainGameClass.getGameSpeed()
