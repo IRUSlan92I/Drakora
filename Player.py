@@ -145,6 +145,11 @@ class Player(pygame.sprite.Sprite):
 
     def calcMaxHoverCount(self, speed):
         return round(-0.44 + 0.079*math.log(speed) + 49.42 * (1/math.sqrt(speed)))
+        
+
+    def moveDown(self, value):
+        self.__doubleY += value
+        self.rect.y = self.__doubleY
 
 
     def update(self):
@@ -185,8 +190,7 @@ class Player(pygame.sprite.Sprite):
         else:
             self.speed += 0.07 * gameSpeed
 
-        self.__doubleY += self.speed
-        self.rect.y = self.__doubleY
+        self.moveDown(self.speed)
 
         for collisionBox in self.collisionBoxes:
             collisionBox.setY(self.rect.y)

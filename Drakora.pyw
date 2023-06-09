@@ -17,7 +17,6 @@ from Cloud import Cloud
 from Floor import Floor
 from EndSceen import EndSceen
 
-
 class Drakora():
     def getGameSpeed(self):
         return self.__gameSpeed
@@ -256,8 +255,7 @@ class Drakora():
 
         if self.player.isOnFloor:
             while pygame.sprite.spritecollideany(self.player, self.floors):
-                self.player.rect.y -= 0.1
-                self.player._Player__doubleY -= 0.1
+                self.player.moveDown(-0.1)
 
 
     def doCheats(self):
